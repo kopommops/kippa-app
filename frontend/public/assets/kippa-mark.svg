@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">kippa mark</title>
+  <desc id="desc">A rounded lowercase k inspired by the heavy, soft terminals of Nunito, in cream with a terracotta highlight on an obsidian background.</desc>
+  <defs>
+    <linearGradient id="obsidian" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#292725"/>
+      <stop offset="1" stop-color="#1A1A1A"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#E5815B"/>
+      <stop offset="1" stop-color="#D96B43"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="19" fill="url(#obsidian)"/>
+  <g fill="none" stroke="#F5F2EB" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M24 33.5 42 17.5"/>
+    <path d="M24 33.5 42.5 48"/>
+    <path d="M22.5 14.5V49.5"/>
+  </g>
+  <path d="M29.5 28.5 36.5 22.3" fill="none" stroke="url(#accent)" stroke-width="3.6" stroke-linecap="round"/>
+  <path d="M10.5 10.5h17" fill="none" stroke="#FFFFFF" stroke-opacity=".2" stroke-width="1.5" stroke-linecap="round"/>
+</svg>
