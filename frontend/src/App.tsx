@@ -147,9 +147,9 @@ function App() {
         </div>}
 
         {loadingDashboard && !dashboard ? <div className="loading-state"><LoaderCircle className="spin" size={24} /><span>Reading the income rhythm…</span></div> : dashboard ? <>
-          <section className="kippascore-strip" aria-label="KippaScore financial consistency signal">
+          <section className="kippascore-strip" aria-label="PeloScore financial consistency signal">
             <div className="score-main">
-              <div className="score-kicker"><span className="score-symbol">K</span><div><p className="eyebrow">INTRODUCING</p><h2>KippaScore</h2></div></div>
+              <div className="score-kicker"><span className="score-symbol">P</span><div><p className="eyebrow">INTRODUCING</p><h2>PeloFinanceScore</h2></div></div>
               <p className="score-description">A transparent view of financial consistency — designed for people whose income doesn't arrive on a schedule.</p>
               <span className="score-disclaimer"><ShieldCheck size={14} /> Illustrative demo signal · not a credit score</span>
             </div>
