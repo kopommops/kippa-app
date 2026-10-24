@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     database_url: str = "sqlite:///./pelo-finance.db"
-    cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
+    cors_origins: str = "https://pelo-finance.vercel.app/, http://localhost:3000"
     currency: str = "BWP"
     app_name: str = "Pelo Finance API"
     model_config = SettingsConfigDict(env_file=".env", extra="ignore", case_sensitive=False)
