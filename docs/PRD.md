@@ -1,9 +1,9 @@
-# Kippa — Product Requirements Document
+# Pelo Finance — Product Requirements Document
 
 ## Product statement
-Kippa makes the financial patterns of irregular earners easier to understand and, over time, easier to communicate to formal financial services. KippaScore is an explainable financial-consistency signal, not a replacement for regulated credit scoring.
+Pelo Finance makes the financial patterns of irregular earners easier to understand and, over time, easier to communicate to formal financial services. PeloFinanceScore is an explainable financial-consistency signal, not a replacement for regulated credit scoring.
 
-## Users
+## Primary Users
 - Informal traders and spaza-shop operators
 - Ride-hailing and delivery drivers
 - Freelancers and home-based service providers
@@ -17,7 +17,7 @@ Ship one complete, deployed experience that proves how a financial pattern can b
 ## Core journey
 1. Enter through a branded welcome screen.
 2. Select one of three demo personas.
-3. View the cash-flow summary and KippaScore explanation.
+3. View the cash-flow summary and PeloFinanceScore explanation.
 4. Review the next-seven-day forecast.
 5. Trigger a 45% lower-inflow stress scenario.
 6. See updated risk context and recommended next action.
@@ -27,7 +27,7 @@ Ship one complete, deployed experience that proves how a financial pattern can b
 - Responsive layout for mobile and desktop, keyboard-accessible controls.
 - SVG logo, favicon, wordmark, and obsidian-glass K illustration.
 - Synthetic demo data disclosed in the UI.
-- KippaScore demonstration heuristic with explanatory factors and an explicit unvalidated disclaimer.
+- PeloFinanceScore demonstration heuristic with explanatory factors and an explicit unvalidated disclaimer.
 - Deterministic scenario changes; no alteration of historical transaction records.
 - Forecast endpoint, health endpoint, persona endpoint, dashboard endpoint, scenario endpoint.
 - Local SQLite default and environment-based PostgreSQL-compatible connection.
@@ -39,7 +39,7 @@ Ship one complete, deployed experience that proves how a financial pattern can b
 - Real user onboarding/KYC, financial account linking, or storing sensitive bank credentials
 - LLM-driven scoring
 
-## KippaScore prototype factors
+## PeloFinanceScore prototype factors
 The interface surfaces cash-flow resilience, observed income activity, and source/evidence quality. The visible 0–100 number is a demo heuristic. It is not a creditworthiness determination, and synthetic transactions do not prove real-world reliability. A production version requires representative data, a documented target outcome, calibration, out-of-sample evaluation, explainability, bias testing, consent, governance, and approval from relevant legal/compliance stakeholders.
 
 ## Acceptance criteria

@@ -13,7 +13,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       const payload = await response.json()
       if (typeof payload.detail === 'string') detail = payload.detail
     } catch {
-      // Keep the status-based message if the server did not return JSON.
+      // the server did not return JSON.
     }
     throw new Error(detail)
   }

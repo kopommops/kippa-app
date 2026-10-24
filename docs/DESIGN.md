@@ -5,7 +5,7 @@ Modern Swiss minimalism with a restrained glassmorphism layer. Use clear grid al
 
 ## Brand architecture
 - Product: **pelo** (lowercase wordmark)
-- Signature feature: **KippaScore**
+- Signature feature: **PeloFinanceScore**
 - Promise: make the financial story of irregular earners visible
 
 ## Palette — 60 / 30 / 10
@@ -16,7 +16,7 @@ Modern Swiss minimalism with a restrained glassmorphism layer. Use clear grid al
 - Green is used sparingly for positive context only, not as a competing brand accent.
 
 ## Typography
-- **Nunito 800/900**: kippa wordmark, page headings, KippaScore, key numeric display
+- **Nunito 800/900**: pelo finance wordmark, page headings, PeloFinanceScore, key numeric display
 - **DM Sans 400–700**: body, labels, navigation, form controls, data labels
 - Use sentence case for headings and tabular numerals for financial amounts.
 
@@ -34,13 +34,13 @@ The welcome/loading screen centres a large K rendered as a standalone SVG. The m
 ## Screen hierarchy
 1. Dark welcome screen: glass K, lowercase wordmark, concise value proposition, one CTA, synthetic-data disclosure.
 2. Dashboard header and persona picker.
-3. KippaScore feature panel: number, explanation factors, synthetic/unvalidated notice.
+3. PeloFinanceScore feature panel: number, explanation factors, synthetic/unvalidated notice.
 4. Four financial metrics.
 5. Income history and forecast/stress-test panels.
 6. Next-action insights and recent synthetic activity.
 
 ## Assets
-All authored assets live in `frontend/public/assets/`: `kippa-mark.svg`, `kippa-favicon.svg`, `kippa-wordmark.svg`, `kippa-glass-k.svg`, and `onboarding-pattern.svg`. They are normal SVG files, not base64 data URLs.
+All authored assets live in `frontend/public/assets/`: `pelo-finance-mark.svg`, `pelo-finance-favicon.svg`, `pelo-finance-wordmark.svg`, `pelo-finance-glass-p.svg`, and `onboarding-pattern.svg`. They are normal SVG files, not base64 data URLs.
 
 ## Accessibility
 Semantic landmarks, labels, keyboard-operated Headless UI selector, focus-visible styles, reduced-motion support, and plain-language synthetic data disclaimers. Do not communicate risk by colour alone; include text.
