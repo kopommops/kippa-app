@@ -1,10 +1,10 @@
-# Kippa — Design System
+# Pelo — Design System
 
 ## Design principle
 Modern Swiss minimalism with a restrained glassmorphism layer. Use clear grid alignment, large confident type, quiet surfaces, deliberate spacing, and one energetic accent. Avoid the generic blue fintech dashboard look.
 
 ## Brand architecture
-- Product: **kippa** (lowercase wordmark)
+- Product: **pelo** (lowercase wordmark)
 - Signature feature: **KippaScore**
 - Promise: make the financial story of irregular earners visible
 
