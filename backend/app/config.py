@@ -3,10 +3,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    database_url: str = "sqlite:///./kippa.db"
+    database_url: str = "sqlite:///./pelo-finance.db"
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
     currency: str = "BWP"
-    app_name: str = "Kippa API"
+    app_name: str = "Pelo Finance API"
     model_config = SettingsConfigDict(env_file=".env", extra="ignore", case_sensitive=False)
 
     @property
