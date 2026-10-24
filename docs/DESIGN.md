@@ -71,7 +71,6 @@ At widths up to 850 px, desktop sidebar is hidden. A four-item bottom bar provid
 
 ### Views
 
-- `/`: public landing page with a terracotta-led brand story and explicit synthetic-data disclosure. The main CTA opens the demo onboarding.
 - `/app/overview`: balance summaries, PeloScore preview, cash-flow chart, forecast scenario, insights, recent activity.
 - `/app/activity`: recent synthetic transactions and data source disclosure.
 - `/app/forecast`: seven-day summary, scenario control, day-by-day estimates.

@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="820" viewBox="0 0 1440 820" role="img" aria-labelledby="title desc">
+<title id="title">Pelo Finance secure software development lifecycle</title>
+<desc id="desc">Six connected stages: discover, design and threat model, build, verify, release, and observe and improve. A continuous feedback loop runs around the lifecycle. This is the intended lifecycle; individual security gates must be verified for each release.</desc>
+<defs>
+  <marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto"><path d="M0 0 L12 6 L0 12Z" fill="#A9A095"/></marker>
+  <marker id="terraArrow" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto"><path d="M0 0 L12 6 L0 12Z" fill="#B84F31"/></marker>
+  <filter id="shadow" x="-15%" y="-15%" width="130%" height="140%"><feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#382219" flood-opacity=".08"/></filter>
+</defs>
+<rect width="1440" height="820" rx="28" fill="#F8F4ED"/>
+<rect x="0" y="0" width="1440" height="13" rx="7" fill="#B84F31"/>
+<text x="72" y="74" font-family="Syne,Arial,sans-serif" font-size="38" font-weight="700" fill="#201A17">Pelo Finance | Secure development lifecycle</text>
+<text x="72" y="112" font-family="Arial,sans-serif" font-size="20" fill="#70645C">A lightweight, iterative loop. Security and privacy are considered throughout, not added at the end.</text>
+<rect x="72" y="146" width="1296" height="52" rx="16" fill="#EFE4D7" stroke="#E3D2C1"/>
+<text x="720" y="178" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#6F3927">CONTINUOUS THROUGH EVERY STAGE: feedback · risk review · documentation · accessibility · data minimisation</text>
+<!-- card 1 -->
+<g filter="url(#shadow)"><rect x="72" y="244" width="390" height="194" rx="22" fill="#FFFDF8" stroke="#E7D7C7" stroke-width="2"/></g>
+<circle cx="111" cy="284" r="20" fill="#B84F31"/><text x="111" y="291" text-anchor="middle" font-family="Arial,sans-serif" font-size="19" font-weight="700" fill="#FFFFFF">1</text>
+<text x="145" y="292" font-family="Syne,Arial,sans-serif" font-size="25" font-weight="700" fill="#201A17">Discover</text>
+<text x="102" y="334" font-family="Arial,sans-serif" font-size="18" fill="#4F443D">• User problem and intended outcome</text>
+<text x="102" y="365" font-family="Arial,sans-serif" font-size="18" fill="#4F443D">• Scope, assumptions and acceptance criteria</text>
+<text x="102" y="396" font-family="Arial,sans-serif" font-size="18" fill="#4F443D">• Synthetic data for the demo</text>
+<!-- card 2 -->
+<g filter="url(#shadow)"><rect x="525" y="244" width="390" height="194" rx="22" fill="#FFFDF8" stroke="#D96B43" stroke-width="2"/></g>
+<circle cx="564" cy="284" r="20" fill="#B84F31"/><text x="564" y="291" text-anchor="middle" font-family="Arial,sans-serif" font-size="19" font-weight="700" fill="#FFFFFF">2</text>
+<text x="598" y="292" font-family="Syne,Arial,sans-serif" font-size="25" font-weight="700" fill="#201A17">Design &amp; model threats</text>
+<text x="555" y="334" font-family="Arial,sans-serif" font-size="18" fill="#4F443D">• Architecture and trust boundaries</text>
+<text x="555" y="365" font-family="Arial,sans-serif" font-size="18" fill="#4F443D">• STRIDE: abuse cases and mitigations</text>
+<text x="555" y="396" font-family="Arial,sans-serif" font-size="18" fill="#4F443D">• Privacy and data-flow decisions</text>
+<!-- card 3 -->
+<g filter="url(#shadow)"><rect x="978" y="244" width="390" height="194" rx="22" fill="#FFFDF8" stroke="#E7D7C7" stroke-width="2"/></g>
+<circle cx="1017" cy="284" r="20" fill="#B84F31"/><text x="1017" y="291" text-anchor="middle" font-family="Arial,sans-serif" font-size="19" font-weight="700" fill="#FFFFFF">3</text>
+<text x="1051" y="292" font-family="Syne,Arial,sans-serif" font-size="25" font-weight="700" fill="#201A17">Build</text>
+<text x="1008" y="334" font-family="Arial,sans-serif" font-size="18" fill="#4F443D">• Small, reviewable feature slices</text>
+<text x="1008" y="365" font-family="Arial,sans-serif" font-size="18" fill="#4F443D">• Server-side validation and safe errors</text>
+<text x="1008" y="396" font-family="Arial,sans-serif" font-size="18" fill="#4F443D">• Dependency and secret hygiene</text>
+<!-- first row arrows -->
+<path d="M462 340 H513" stroke="#A9A095" stroke-width="3" fill="none" marker-end="url(#arrow)"/><path d="M915 340 H966" stroke="#A9A095" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+<!-- down and reverse row -->
+<path d="M1173 438 V480" stroke="#A9A095" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+<!-- card 4 -->
+<g filter="url(#shadow)"><rect x="978" y="492" width="390" height="194" rx="22" fill="#FFFDF8" stroke="#E7D7C7" stroke-width="2"/></g>
+<circle cx="1017" cy="532" r="20" fill="#B84F31"/><text x="1017" y="539" text-anchor="middle" font-family="Arial,sans-serif" font-size="19" font-weight="700" fill="#FFFFFF">4</text>
+<text x="1051" y="540" font-family="Syne,Arial,sans-serif" font-size="25" font-weight="700" fill="#201A17">Verify</text>
+<text x="1008" y="582" font-family="Arial,sans-serif" font-size="18" fill="#4F443D">• Unit, API and user-flow tests</text>
+<text x="1008" y="613" font-family="Arial,sans-serif" font-size="18" fill="#4F443D">• Mobile, keyboard and contrast checks</text>
+<text x="1008" y="644" font-family="Arial,sans-serif" font-size="18" fill="#4F443D">• Security checks and evidence review</text>
+<!-- card 5 -->
+<g filter="url(#shadow)"><rect x="525" y="492" width="390" height="194" rx="22" fill="#FFFDF8" stroke="#E7D7C7" stroke-width="2"/></g>
+<circle cx="564" cy="532" r="20" fill="#B84F31"/><text x="564" y="539" text-anchor="middle" font-family="Arial,sans-serif" font-size="19" font-weight="700" fill="#FFFFFF">5</text>
+<text x="598" y="540" font-family="Syne,Arial,sans-serif" font-size="25" font-weight="700" fill="#201A17">Release</text>
+<text x="555" y="582" font-family="Arial,sans-serif" font-size="18" fill="#4F443D">• Build from reviewed source</text>
+<text x="555" y="613" font-family="Arial,sans-serif" font-size="18" fill="#4F443D">• Check env, health and routing</text>
+<text x="555" y="644" font-family="Arial,sans-serif" font-size="18" fill="#4F443D">• Keep rollback path understood</text>
+<!-- card 6 -->
+<g filter="url(#shadow)"><rect x="72" y="492" width="390" height="194" rx="22" fill="#FFFDF8" stroke="#E7D7C7" stroke-width="2"/></g>
+<circle cx="111" cy="532" r="20" fill="#B84F31"/><text x="111" y="539" text-anchor="middle" font-family="Arial,sans-serif" font-size="19" font-weight="700" fill="#FFFFFF">6</text>
+<text x="145" y="540" font-family="Syne,Arial,sans-serif" font-size="25" font-weight="700" fill="#201A17">Observe &amp; improve</text>
+<text x="102" y="582" font-family="Arial,sans-serif" font-size="18" fill="#4F443D">• Gather demo and team feedback</text>
+<text x="102" y="613" font-family="Arial,sans-serif" font-size="18" fill="#4F443D">• Track and prioritise issues</text>
+<text x="102" y="644" font-family="Arial,sans-serif" font-size="18" fill="#4F443D">• Revisit threats and requirements</text>
+<path d="M978 589 H915" stroke="#A9A095" stroke-width="3" fill="none" marker-end="url(#arrow)"/><path d="M525 589 H462" stroke="#A9A095" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+<path d="M267 686 V710 H52 V340 H72" stroke="#B84F31" stroke-width="3" fill="none" stroke-dasharray="8 8" marker-end="url(#terraArrow)"/>
+<rect x="160" y="730" width="1120" height="54" rx="16" fill="#201A17"/>
+<text x="720" y="764" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#F8F4ED">Release gate: tests and evidence reviewed · threat notes updated · docs reflect actual status</text>
+<text x="72" y="805" font-family="Arial,sans-serif" font-size="15" fill="#8A7D72">Planned lifecycle for this prototype. The diagram does not imply every gate has passed for the current build.</text>
+</svg>
