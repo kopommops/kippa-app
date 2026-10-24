@@ -92,7 +92,7 @@ function App() {
     <div className="app-shell">
       <header className="topbar">
         <a className="brand" href="#top" aria-label="Pelo Finance home">
-          <img className="brand-mark-image" src="/assets/pelo-finance-mark.svg" alt="" />
+          <img className="brand-mark-image" src="/assets/pelo-mark.svg" alt="" />
           <span className="brand-word">pelo-finance</span>
         </a>
         <div className="topbar-right">
