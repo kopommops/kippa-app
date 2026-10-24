@@ -264,7 +264,7 @@ export default function App() {
             <ChevronDown className="select-chevron" size={17} />
           </ListboxButton>
           <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100 translate-y-0" leaveTo="opacity-0 -translate-y-1">
-            <ListboxOptions className="persona-options">
+            <ListboxOptions anchor={{ to: 'bottom start', gap: '8px', padding: '12px' }} className="persona-options">
               {personas.map((persona) => (
                 <ListboxOption key={persona.id} value={persona.id} className={({ active }) => `persona-option ${active ? 'option-active' : ''}`}>
                   {({ selected }) => <>
