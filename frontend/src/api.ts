@@ -1,6 +1,7 @@
 import type { Dashboard, Persona } from './types'
 
-const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '')
+const configuredBase = import.meta.env.VITE_API_BASE_URL
+const API_BASE = (configuredBase?.trim() || (import.meta.env.DEV ? 'http://localhost:8000' : '')).replace(/\/$/, '')
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`, {
@@ -13,7 +14,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       const payload = await response.json()
       if (typeof payload.detail === 'string') detail = payload.detail
     } catch {
-      // the server did not return JSON.
+      // Keep the status-based message if the server did not return JSON.
     }
     throw new Error(detail)
   }
@@ -22,7 +23,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const api = {
   personas: () => request<Persona[]>('/api/personas'),
-  dashboard: (id: string) => request<Dashboard>(`/api/personas/${id}/dashboard`),
-  simulate: (id: string) => request<Dashboard>(`/api/personas/${id}/simulate-lean-week`, { method: 'POST' }),
-  reset: (id: string) => request<Dashboard>(`/api/personas/${id}/reset-scenario`, { method: 'POST' }),
+  dashboard: (id: string) => request<Dashboard>(`/api/personas/${encodeURIComponent(id)}/dashboard`),
+  simulate: (id: string) => request<Dashboard>(`/api/personas/${encodeURIComponent(id)}/simulate-lean-week`, { method: 'POST' }),
+  reset: (id: string) => request<Dashboard>(`/api/personas/${encodeURIComponent(id)}/reset-scenario`, { method: 'POST' }),
 }

@@ -1,1 +1,1 @@
-"""Kippa API package."""
+"""Pelo Finance API package."""

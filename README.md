@@ -1,47 +1,97 @@
-# Kippa — hackathon MVP
+# Pelo Finance
 
-Kippa helps people with irregular income understand their cash-flow rhythm and prepare for lean weeks. **KippaScore** is the flagship concept: an explainable, illustrative financial-consistency signal designed for people underserved by conventional credit histories. It is not a validated credit score or lending decision.
+**Make your money story visible.** Pelo Finance is a hackathon prototype for people whose income may be irregular, seasonal, cash-based, or spread across several small sources. The current public demo helps users explore synthetic cash-flow history, a seven-day forecast, a lean-week scenario, and PeloScore, an early illustrative financial-consistency signal.
 
-## Stack
-- Frontend: React, Vite, TypeScript, Tailwind CSS, Headless UI, Recharts, Lucide
-- Backend: Python, FastAPI, SQLAlchemy, scikit-learn baseline forecast
-- Local database: SQLite; PostgreSQL/Supabase-compatible through `DATABASE_URL`
-- Assets: hand-authored SVG files in `frontend/public/assets` (no base64 images)
+> **Demo safety:** all profiles and transaction records in this build are synthetic. The prototype is not connected to a bank and must not be used for lending, pricing, eligibility, or other consequential financial decisions. PeloScore is not a validated credit score.
+
+## Current implementation
+
+### Frontend
+
+- React 18, TypeScript, Vite, Tailwind CSS, Headless UI, Lucide icons, and Recharts.
+- Terracotta-led landing and workspace shell, with cream data surfaces in light mode and charcoal surfaces in dark mode.
+- Syne display typography and Scoutie Sans body typography, with resilient system fallbacks.
+- Device-preference theme on first visit, persisted user selection, and a pre-paint theme script to reduce flash.
+- Desktop compact/revealing sidebar, animated navigation glyph, mobile drawer, and mobile bottom navigation.
+- Public product landing page at `/`; choosing “Explore the demo” opens the synthetic-demo onboarding.
+- Route-aware workspace views at `/app/overview`, `/app/activity`, `/app/forecast`, `/app/peloscore`, and `/app/settings`.
+- Loading, error/retry, empty, score-disclaimer, and synthetic-data disclosure states.
+
+### Backend
+
+- FastAPI with SQLAlchemy and SQLite as the local default.
+- Seeded synthetic personas and transactions, dashboard summaries, a seven-day forecast, and a toggleable lean-week scenario.
+- Health endpoint: `GET /api/health`.
+- Persona endpoints: `GET /api/personas`, `GET /api/personas/{id}/dashboard`, and `GET /api/personas/{id}/transactions`.
+- Scenario endpoints: `POST /api/personas/{id}/simulate-lean-week` and `POST /api/personas/{id}/reset-scenario`.
 
 ## Run locally
 
-### Backend (PowerShell)
-```powershell
+Use Node.js 20 or newer and Python 3.11 or newer.
+
+### 1. Start the API
+
+```bash
 cd backend
-py -3 -m venv .venv
+python -m venv .venv
+# Windows PowerShell
 .\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-Copy-Item .env.example .env
+# macOS/Linux
+# source .venv/bin/activate
+python -m pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 ```
 
-### Frontend (second terminal)
-```powershell
+The API reads environment variables from `backend/.env`. Copy `backend/.env.example` to `backend/.env` if you need to override the defaults. The local SQLite database file is `pelo_finance.db` in the backend working directory.
+
+### 2. Start the frontend
+
+In another terminal:
+
+```bash
 cd frontend
 npm install
+cp .env.example .env.local
 npm run dev
 ```
-Open http://localhost:5173. API docs: http://127.0.0.1:8000/docs.
 
-## Demo path
-1. Enter through the welcome screen featuring the obsidian-glass K.
-2. Select one of the three synthetic personas.
-3. Review KippaScore, its explanatory factors, recent activity and the seven-day forecast.
-4. Trigger **Simulate a lean week** and explain how the outlook changes.
-5. Reset to baseline.
+For PowerShell, use `Copy-Item .env.example .env.local` rather than `cp`. Set `VITE_API_BASE_URL=http://localhost:8000` in `frontend/.env.local` for local development. Set `VITE_CURRENCY=BWP` unless you are intentionally testing another supported display currency.
 
-## Honest demo boundaries
-- All seeded transactions are synthetic. No bank is connected.
-- KippaScore is a prototype heuristic, not statistically validated, and must not be used for lending decisions. Its number is demonstrative only.
-- Forecasts are estimates. They do not guarantee future balances.
-- The buffer is illustrative and is not an offer of credit.
+### 3. Build and check
 
-## Before production
-Add real authentication and consent, account/tenant isolation, request throttling, audit trails, production logging/monitoring, persistent PostgreSQL, migrations, secrets management, backup/restore tests, model validation, bias/fairness assessment, and security/privacy review. Integrate bank feeds only through approved providers and explicit user consent.
+```bash
+cd frontend
+npm run build
+```
 
-See [`PRD.md`](PRD.md) and [`DESIGN.md`](DESIGN.md) for scope, visual system, architecture, and decision rules.
+Backend tests:
+
+```bash
+cd backend
+python -m pytest
+```
+
+The browser SPA fallback is configured in `frontend/vercel.json` so refreshing a `/app/...` view serves the frontend entry point. The production frontend still needs a correctly configured `VITE_API_BASE_URL` pointing to the deployed API origin.
+
+## Important constraints before real users
+
+This package improves brand, navigation, appearance, and demo disclosure. It does **not** implement authentication, account ownership, tenant isolation, real bank linking, production migrations, or a validated score model. The current scenario toggle is stored on the seeded persona; demo visitors may affect the same profile state. Keep this build synthetic-only until isolation is implemented and tested.
+
+Before storing real financial data, establish and test all of the following:
+
+1. Server-verified authentication and per-user/business ownership checks on every data path.
+2. Managed PostgreSQL, versioned Alembic migrations, tested backup/restore, and a defined retention/deletion policy.
+3. Transaction values represented in integer minor units or exact decimal arithmetic, never binary floating point for ledger calculations.
+4. Private scenario state with isolation from shared seeded records and other sessions.
+5. An approved privacy and regulatory review, explicit consent, secure provider-based bank authorization, and a reviewed security threat model.
+6. A documented, versioned PeloScore methodology with representative consented data, temporal validation, calibration, and fairness testing before making outcome claims.
+
+## Product language
+
+- Product: **Pelo Finance**
+- Flagship concept: **PeloScore**
+- Currency display: configurable, defaulting to **BWP**
+- Data status in the public demo: **synthetic data**
+- Positioning: financial pattern visibility and planning support, not a credit decision
+
+See [PRD.md](PRD.md), [DESIGN.md](DESIGN.md), [docs/ASSET-REGISTER.md](docs/ASSET-REGISTER.md), [docs/QA-CHECKLIST.md](docs/QA-CHECKLIST.md), and [docs/IMPLEMENTATION-NOTES.md](docs/IMPLEMENTATION-NOTES.md).
