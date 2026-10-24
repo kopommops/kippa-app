@@ -91,13 +91,13 @@ function App() {
   return (
     <div className="app-shell">
       <header className="topbar">
-        <a className="brand" href="#top" aria-label="Kippa home">
-          <img className="brand-mark-image" src="/assets/kippa-mark.svg" alt="" />
-          <span className="brand-word">kippa</span>
+        <a className="brand" href="#top" aria-label="Pelo Finance home">
+          <img className="brand-mark-image" src="/assets/pelo-finance-mark.svg" alt="" />
+          <span className="brand-word">pelo-finance</span>
         </a>
         <div className="topbar-right">
           <span className="demo-pill"><span className="status-dot" /> SYNTHETIC DEMO DATA</span>
-          <button className="icon-button help-button" type="button" title="About this demo" onClick={() => window.alert('Kippa is a hackathon prototype using synthetic transactions. KippaScore is an illustrative financial-consistency signal, not a validated credit score or lending decision.')}>
+          <button className="icon-button help-button" type="button" title="About this demo" onClick={() => window.alert('Pelo Finance is a hackathon prototype using synthetic transactions. PeloFinanceScore is an illustrative financial-consistency signal, not a validated credit score or lending decision.')}>
             <CircleHelp size={18} /> <span>About</span>
           </button>
         </div>
@@ -108,7 +108,7 @@ function App() {
           <div>
             <p className="eyebrow"><span className="eyebrow-line" /> FINANCIAL CONFIDENCE, REIMAGINED</p>
             <h1>Make your financial<br className="desktop-break" /> <span className="headline-soft">story visible.</span></h1>
-            <p className="welcome-copy">Kippa helps irregular earners understand their income rhythm, prepare for lean weeks, and make consistency easier to see.</p>
+            <p className="welcome-copy">Pelo Finance helps irregular earners understand their income rhythm, prepare for lean weeks, and make consistency easier to see.</p>
           </div>
           <div className="persona-control">
             <span className="field-label">EXPLORING AS</span>
