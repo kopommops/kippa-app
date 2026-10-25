@@ -143,6 +143,7 @@ def build_account_dashboard(db: Session, user: User) -> dict:
                 "amount": money_from_minor(entry.amount_minor),
                 "category": entry.category,
                 "description": entry.description,
+                "source": getattr(entry, "source", "manual"),
             }
             for entry in list(reversed(account_transactions(db, user.id)[:20]))
         ],

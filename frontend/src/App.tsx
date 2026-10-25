@@ -1,4 +1,5 @@
 import { AccountPortal } from './AccountPortal'
+import { BackToTopButton } from './AppChrome'
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import {
@@ -15,6 +16,7 @@ import {
 import {
   Activity,
   ArrowDownRight,
+  ArrowLeft,
   ArrowRight,
   ArrowUpRight,
   Check,
@@ -319,6 +321,7 @@ function DemoApp() {
           </div>
           <div className="topbar-right">
             <p className="demo-note">Demo uses synthetic data</p>
+            <button className="topbar-home-button" type="button" onClick={() => window.location.assign('/')}><ArrowLeft size={15} /><span>Back to home</span></button>
             <button className="theme-toggle" type="button" onClick={() => changeTheme(theme === 'light' ? 'dark' : 'light')} aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`} aria-pressed={theme === 'dark'} title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}>
               {theme === 'light' ? <Moon size={17} /> : <Sun size={17} />}
             </button>
@@ -645,6 +648,6 @@ export default function App() {
     return () => window.removeEventListener('popstate', syncPath)
   }, [])
 
-  if (pathname === '/account' || pathname.startsWith('/account/')) return <AccountPortal />
-  return <DemoApp />
+  if (pathname === '/account' || pathname.startsWith('/account/')) return <><AccountPortal /><BackToTopButton /></>
+  return <><DemoApp /><BackToTopButton /></>
 }

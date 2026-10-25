@@ -1,4 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 100" role="img" aria-label="Pelo Finance">
-  <text x="220" y="61" text-anchor="middle" font-family="Syne, Montserrat, Arial, sans-serif" font-size="52" font-weight="700" letter-spacing="-2.8" fill="#FFF7F1">Pelo Finance</text>
-  <path d="M148 77h144" stroke="#FFF7F1" stroke-opacity=".38" stroke-width="1" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 64" role="img" aria-labelledby="title desc">
+  <title id="title">Pelo Finance</title>
+  <desc id="desc">Pelo Finance wordmark in cream lettering.</desc>
+  <g fill="#FFF7F1" font-family="Syne, Inter, Arial, sans-serif" font-weight="800">
+    <text x="2" y="42" font-size="40" letter-spacing="-2.5">Pelo</text>
+    <text x="111" y="42" font-size="34" letter-spacing="-1.7">Finance</text>
+  </g>
+  <rect x="2" y="52" width="54" height="3" rx="1.5" fill="#D96B43"/>
+  <circle cx="65" cy="53.5" r="1.5" fill="#F5B9A0"/>
 </svg>

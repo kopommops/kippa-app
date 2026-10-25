@@ -1,1 +1,1 @@
-{"root":["./src/accountportal.tsx","./src/app.tsx","./src/accountapi.ts","./src/api.ts","./src/main.tsx","./src/types.ts","./src/vite-env.d.ts"],"version":"5.6.3"}
+{"root":["./src/accountportal.tsx","./src/app.tsx","./src/appchrome.tsx","./src/accountapi.ts","./src/api.ts","./src/main.tsx","./src/types.ts","./src/vite-env.d.ts"],"version":"5.6.3"}

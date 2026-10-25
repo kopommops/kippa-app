@@ -1,4 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="18" fill="#D96B43"/>
-  <path d="M19 51V13h15c10 0 16 5.2 16 13.5S44 40 34 40h-6v11H19Zm9-19h6c4.5 0 7-1.9 7-5.5S38.5 21 34 21h-6v11Z" fill="#FFF7F1"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Pelo Finance</title>
+  <rect width="64" height="64" rx="15" fill="#1A1A1A"/>
+  <path d="M17 49V15h17c11 0 17 6 17 15s-6 15-17 15h-8v4H17Zm9-25v13h7c5 0 8-2 8-7s-3-6-8-6h-7Z" fill="#F5F2EB"/>
+  <path d="M26 24h7c5 0 8 2 8 6h-15v-6Z" fill="#D96B43"/>
 </svg>

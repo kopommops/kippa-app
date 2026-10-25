@@ -7,10 +7,12 @@ venv/
 *.db
 *.sqlite3
 .env
+.env.*
 .env.example
 .env.local
 .env.test
 .env.production
+backend/pelo_finance_before_migration.db
 
 # Node
 node_modules/
@@ -21,3 +23,11 @@ dist/
 .DS_Store
 Thumbs.db
 .vscode/
+
+# Logs
+*.log
+
+# IDE
+.idea/
+
+frontend/tsconfig.tsbuildinfo

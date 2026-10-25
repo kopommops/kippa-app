@@ -52,6 +52,8 @@ class User(Base):
     business: Mapped["BusinessProfile"] = relationship(back_populates="owner", uselist=False, cascade="all, delete-orphan")
     ledger_entries: Mapped[list["LedgerTransaction"]] = relationship(back_populates="owner", cascade="all, delete-orphan")
     ai_usage: Mapped[list["AIUsage"]] = relationship(back_populates="owner", cascade="all, delete-orphan")
+    bank_connections: Mapped[list["BankConnection"]] = relationship(back_populates="owner", cascade="all, delete-orphan")
+    notifications: Mapped[list["AccountNotification"]] = relationship(back_populates="owner", cascade="all, delete-orphan")
 
 
 class BusinessProfile(Base):
@@ -81,6 +83,7 @@ class LedgerTransaction(Base):
     amount_minor: Mapped[int] = mapped_column(Integer, nullable=False)  # integer minor units (thebe)
     category: Mapped[str] = mapped_column(String(64), nullable=False)
     description: Mapped[str] = mapped_column(String(160), nullable=False)
+    source: Mapped[str] = mapped_column(String(32), nullable=False, default="manual")  # manual | bank_simulation
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utcnow_naive)
     owner: Mapped[User] = relationship(back_populates="ledger_entries")
 
@@ -100,3 +103,40 @@ class AIUsage(Base):
     question_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utcnow_naive, onupdate=utcnow_naive)
     owner: Mapped[User] = relationship(back_populates="ai_usage")
+
+
+class BankConnection(Base):
+    """A deliberately simulated bank/wallet link for the hackathon, not a provider integration."""
+    __tablename__ = "bank_connections"
+    __table_args__ = (UniqueConstraint("user_id", "provider_code", name="uq_bank_connection_user_provider"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    provider_code: Mapped[str] = mapped_column(String(32), nullable=False)
+    provider_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    account_label: Mapped[str] = mapped_column(String(80), nullable=False)
+    masked_account: Mapped[str] = mapped_column(String(32), nullable=False, default="•••• 2048")
+    status: Mapped[str] = mapped_column(String(24), nullable=False, default="connected_demo")
+    is_simulated: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utcnow_naive)
+    last_event_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    owner: Mapped[User] = relationship(back_populates="bank_connections")
+    notifications: Mapped[list["AccountNotification"]] = relationship(back_populates="connection", cascade="all, delete-orphan")
+
+
+class AccountNotification(Base):
+    __tablename__ = "account_notifications"
+    __table_args__ = (Index("ix_account_notifications_user_created", "user_id", "created_at"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    bank_connection_id: Mapped[int | None] = mapped_column(ForeignKey("bank_connections.id", ondelete="CASCADE"), nullable=True, index=True)
+    transaction_id: Mapped[int | None] = mapped_column(ForeignKey("ledger_transactions.id", ondelete="SET NULL"), nullable=True)
+    notification_type: Mapped[str] = mapped_column(String(32), nullable=False, default="info")
+    title: Mapped[str] = mapped_column(String(120), nullable=False)
+    body: Mapped[str] = mapped_column(String(300), nullable=False)
+    amount_minor: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    is_read: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utcnow_naive)
+    owner: Mapped[User] = relationship(back_populates="notifications")
+    connection: Mapped[BankConnection | None] = relationship(back_populates="notifications")

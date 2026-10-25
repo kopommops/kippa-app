@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
+from typing import Literal
 import re
 from uuid import UUID
 
@@ -228,6 +229,7 @@ class AccountTransactionOut(BaseModel):
     amount: float
     category: str
     description: str
+    source: str = "manual"
 
 
 class PeloScoreFactorOut(BaseModel):
@@ -278,3 +280,100 @@ class PeloyameResponse(BaseModel):
     remaining_questions: int
     daily_questions_remaining: int
     mode: str = "read_only"
+
+
+class AccountSettingsOut(BaseModel):
+    owner_name: str
+    email: str
+    business_name: str
+    business_type: str
+
+
+class AccountSettingsUpdate(BaseModel):
+    owner_name: str = Field(min_length=2, max_length=80)
+    business_name: str = Field(min_length=2, max_length=100)
+    business_type: str = Field(min_length=2, max_length=64)
+
+    @field_validator("owner_name", "business_name", "business_type")
+    @classmethod
+    def clean_settings_text(cls, value: str) -> str:
+        cleaned = " ".join(value.strip().split())
+        if not cleaned or any(ord(ch) < 32 for ch in cleaned):
+            raise ValueError("Please enter valid text.")
+        return cleaned
+
+    @field_validator("business_type")
+    @classmethod
+    def validate_settings_business_type(cls, value: str) -> str:
+        allowed = {
+            "retail / tuck shop": "Retail / tuck shop",
+            "food vendor": "Food vendor",
+            "market trader": "Market trader",
+            "personal services": "Personal services",
+            "transport": "Transport",
+            "other microbusiness": "Other microbusiness",
+        }
+        canonical = allowed.get(value.strip().casefold())
+        if canonical is None:
+            raise ValueError("Choose one of the available business types.")
+        return canonical
+
+
+class BankConnectionCreate(BaseModel):
+    provider_code: Literal["demo_fnb", "demo_mobile_money", "demo_savings"]
+    account_label: str = Field(min_length=2, max_length=80)
+
+    @field_validator("account_label")
+    @classmethod
+    def clean_account_label(cls, value: str) -> str:
+        value = " ".join(value.strip().split())
+        if not value or any(ord(ch) < 32 for ch in value):
+            raise ValueError("Enter a valid label for this demo connection.")
+        return value
+
+
+class BankConnectionOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    provider_code: str
+    provider_name: str
+    account_label: str
+    masked_account: str
+    status: str
+    is_simulated: bool
+    created_at: datetime
+    last_event_at: datetime | None = None
+
+
+class SimulatedBankEventIn(BaseModel):
+    kind: Literal["income", "expense"]
+    amount: Decimal = Field(gt=Decimal("0"), le=Decimal("10000000"))
+    category: str = Field(min_length=2, max_length=64)
+    description: str = Field(min_length=2, max_length=160)
+
+    @field_validator("amount")
+    @classmethod
+    def validate_event_amount(cls, value: Decimal) -> Decimal:
+        if value.as_tuple().exponent < -2:
+            raise ValueError("Amounts may have no more than two decimal places.")
+        return value.quantize(Decimal("0.01"))
+
+    @field_validator("category", "description")
+    @classmethod
+    def clean_event_text(cls, value: str) -> str:
+        cleaned = " ".join(value.strip().split())
+        if not cleaned or any(ord(ch) < 32 for ch in cleaned):
+            raise ValueError("Enter valid transaction details.")
+        return cleaned
+
+
+class AccountNotificationOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    notification_type: str
+    title: str
+    body: str
+    amount_minor: int | None = None
+    is_read: bool
+    created_at: datetime
+    bank_connection_id: int | None = None

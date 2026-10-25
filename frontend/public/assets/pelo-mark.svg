@@ -1,11 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Pelo Finance mark">
-  <defs>
-    <linearGradient id="pelo" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#E78863"/>
-      <stop offset="1" stop-color="#C65332"/>
-    </linearGradient>
-  </defs>
-  <rect x="1" y="1" width="62" height="62" rx="19" fill="#FFF7F1"/>
-  <path d="M21 49V15h13.5c9 0 14.5 4.7 14.5 12.5S43.5 40 34.5 40H29v9H21Zm8-16h5.1c4.2 0 6.6-1.8 6.6-5.4s-2.4-5.5-6.6-5.5H29V33Z" fill="url(#pelo)"/>
-  <path d="M13 11h12" fill="none" stroke="#D96B43" stroke-width="2" stroke-linecap="round" opacity=".55"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">Pelo Finance mark</title>
+  <desc id="desc">A cream and terracotta P inside a charcoal rounded square.</desc>
+  <rect width="64" height="64" rx="18" fill="#1A1A1A"/>
+  <path d="M18 48V16h16.5C45 16 51 21.7 51 31.1S44.9 46.2 34.5 46.2H27V48h-9Z" fill="#F5F2EB"/>
+  <path d="M27 24h7.1c5.3 0 7.9 2.4 7.9 7.1s-2.6 7.1-7.9 7.1H27V24Z" fill="#D96B43"/>
+  <path d="M18 48h9v-9.8h-9z" fill="#D96B43"/>
 </svg>
