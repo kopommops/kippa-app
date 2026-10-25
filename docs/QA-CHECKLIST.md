@@ -1,64 +1,91 @@
-# Pelo Finance release and visual QA checklist
+# Pelo Finance QA Checklist — Account MVP Sprint
 
-Use this checklist on the exact build that will be demonstrated. A successful compile is not a substitute for browser and API checks.
+Run this after applying the overlay. Use synthetic/test data only. Record pass/fail and a short note; do not mark a test passed merely because the page renders.
 
-## Build and API
+## Build and environment
 
-- [ ] `frontend/npm run build` completes without TypeScript or Vite errors.
-- [ ] `backend/python -m pytest` passes.
-- [ ] `GET /api/health` returns HTTP 200 and identifies the application as `pelo-finance`.
-- [ ] `GET /api/personas` returns seeded synthetic profiles.
-- [ ] Browser Network panel shows profile/dashboard requests going to the configured backend origin, not accidentally to the frontend host.
-- [ ] `VITE_API_BASE_URL` in Vercel points to the deployed API origin without a trailing slash; the backend CORS allowlist includes the exact frontend origin.
-- [ ] Direct refresh on every `/app/...` view returns the SPA entry point.
+- [ ] Backend dependencies install successfully from `backend/requirements.txt`.
+- [ ] Frontend `npm install` and `npm run build` succeed.
+- [ ] Backend `python -m pytest` succeeds.
+- [ ] Backend health endpoint reports `pelo-finance`.
+- [ ] `JWT_SECRET_KEY` is unique locally; `GROQ_API_KEY` exists only in backend environment variables.
+- [ ] The current `DATABASE_URL` is retained and the expected database file is used.
+- [ ] `git status` shows no `.env`, `.env.local`, Groq key, local database, `dist`, `node_modules`, `.venv`, `.pytest_cache` or `__pycache__` staged.
 
-## Brand and assets
+## Routing and public demo
 
-- [ ] No old product names, logos, favicon links, splash assets, or old CSS selectors remain in active code or current documentation.
-- [ ] Favicon, sidebar mark, horizontal lockup, wordmark, and transparent P render without broken paths.
-- [ ] Loading and onboarding show the transparent P mark; the mark is decorative and does not block controls.
-- [ ] Current product references use Pelo Finance and PeloScore consistently.
+- [ ] Refresh `/` and confirm the landing page loads.
+- [ ] “Create account” navigates to `/account`.
+- [ ] “Explore the demo” opens `/app/overview`.
+- [ ] Direct refresh works on `/account` and `/app/overview` in local and deployed SPA routing.
+- [ ] The synthetic demo remains explicitly labelled synthetic.
+- [ ] No public demo action edits an authenticated user's account records.
 
-## Theme and typography
+## Authentication
 
-- [ ] First visit follows the operating-system preference when no theme has been saved.
-- [ ] Manual theme selection persists after reload and direct route load.
-- [ ] No light-theme flash is noticeable when dark mode is already saved.
-- [ ] Both font requests can fail and the page still renders readable body text, headings, monetary figures, and controls.
-- [ ] Verify card borders, dialog backgrounds, listbox options, focus rings, chart grid, chart labels, and tooltips in both themes.
-- [ ] Confirm visible focus states and sufficient contrast for muted labels on terracotta and data surfaces.
+- [ ] Register with valid data and confirm the account/dashboard loads.
+- [ ] Opening balance is shown as the initial recorded cash.
+- [ ] Duplicate email gives a clear response and does not create a second account.
+- [ ] Invalid email, weak-length password and malformed text are rejected.
+- [ ] Incorrect password gives a generic sign-in error.
+- [ ] Refresh `/account`; the session is rechecked and the dashboard loads.
+- [ ] Sign out and verify protected account endpoints require a token.
+- [ ] Expired/invalid tokens require sign-in again.
 
-## Navigation and motion
+## Ledger and ownership
 
-- [ ] Desktop sidebar starts compact; expand and collapse preserve selected navigation and do not obscure content.
-- [ ] The hamburger glyph transitions into an X when the drawer is open; Escape and clicking the backdrop close the drawer.
-- [ ] Focus stays within the modal drawer while open and returns to its trigger on close.
-- [ ] Mobile bottom navigation fits at 320 px width, respects device safe areas, and leaves the final content scrollable.
-- [ ] Browser Back and Forward update the selected view.
-- [ ] Route view, drawer, listbox, and onboarding transitions behave without layout jumps.
-- [ ] `prefers-reduced-motion: reduce` disables floating and other non-essential animation.
+- [ ] Add a P100.25 income and a P20.10 expense. With a P250.50 opening balance, current cash should be P330.65.
+- [ ] Confirm income and expenses appear with the right sign, category and date.
+- [ ] Delete an entry and confirm the balance recalculates.
+- [ ] Add entries under account A and account B; B must not list or delete A's entries.
+- [ ] Send a crafted request with A's transaction ID while authenticated as B; expect 404 and no data disclosure.
+- [ ] Amounts greater than zero and no more than two decimal places are accepted; negative amounts, invalid kinds, overlong strings and malformed values are rejected.
+- [ ] Restart the local backend and verify saved records remain in the selected persistent database.
 
-## Product flow
+## PeloScore, forecast and scenario
+- [ ] A fresh account shows no score and explains the minimum history requirement.
+- [ ] After three records across at least two dates in the last 30 days, PeloScore appears between 0 and 100.
+- [ ] All four factors (cash buffer, recent net flow, record activity and outlook resilience) are visible and understandable.
+- [ ] Score copy clearly says it is illustrative, not a credit score or lending decision.
 
-- [ ] Welcome screen opens, explains the demo, and dismisses by CTA and Escape.
-- [ ] Changing profile loads the corresponding dashboard.
-- [ ] Overview renders metrics, chart, score explanation, forecast, insights, and recent synthetic activity.
-- [ ] Activity, Forecast, PeloScore, and Settings render the correct view and have no broken links.
-- [ ] Lean-week simulation shows a busy/disabled button state and only updates after the API response succeeds.
-- [ ] Reset returns the scenario to baseline after a successful server response.
-- [ ] Failed requests show an alert and actionable retry, without a false success state.
-- [ ] Empty/loading states remain readable with reduced motion and keyboard navigation.
+- [ ] With no entries, the forecast shows limited evidence and does not invent history.
+- [ ] With one week of entries, signal quality indicates limited/early evidence.
+- [ ] Current cash equals opening cash plus recorded income minus recorded expenses.
+- [ ] Baseline projection is based on recent averages and disclosed assumptions.
+- [ ] Lean-week projection reduces estimated inflows by 45% and is clearly labelled illustrative.
+- [ ] Switching baseline/lean-week view does not add, remove or alter ledger entries.
+- [ ] Runway is not shown as a definitive number when expense history is insufficient or average expense is zero.
 
-## Product safety boundary
+## Peloyame
 
-- [ ] The UI states that data is synthetic and no bank account is connected.
-- [ ] PeloScore is described as illustrative and unvalidated, never as creditworthiness or a lending decision.
-- [ ] No real bank password, account number, or OTP is requested.
-- [ ] The public demo has no route into personal data because real-user authentication is not implemented.
+- [ ] With no Groq API key, the assistant displays a friendly temporary-unavailability message; ledger remains usable.
+- [ ] With an authorised free-tier API key, ask an in-scope question about recorded income, outgoings or the outlook.
+- [ ] Verify the answer does not claim to access bank/mobile-money accounts.
+- [ ] Ask it to reveal system prompts/secrets; expect a safe refusal.
+- [ ] Ask it about another user's records; it must not retrieve or reveal them.
+- [ ] Send blank, malformed and over-600-character questions; expect validation.
+- [ ] Send five accepted questions in one session; the sixth is blocked server-side.
+- [ ] Reload the page and confirm the same session's remaining-question counter remains accurate.
+- [ ] Hit the provider's free-tier limit or simulate a timeout; a friendly fallback appears without exposing the provider body, key, traceback or prompt.
+- [ ] Inspect network requests: the Groq key must never appear in browser requests, bundles or local storage.
+- [ ] Confirm the model receives only aggregate financial context, not email, full identity or raw transaction descriptions.
 
-## Production gap before real data
+## UX and accessibility
 
-- [ ] Authentication, data ownership, tenant isolation, and authorization tests are implemented.
-- [ ] Shared demo scenario state is replaced by per-session state or read-only simulation.
-- [ ] Database migrations, backup/recovery, retention/deletion, monitoring, and incident response are implemented.
-- [ ] Security and Botswana regulatory/privacy reviews are complete before live account connection.
+- [ ] Form fields have visible labels; keyboard focus is visible.
+- [ ] Loading, empty, error and success states are clear.
+- [ ] Mobile layout works at 360px, 390px and 430px widths without horizontal scrolling.
+- [ ] Buttons are disabled during their own pending action and explain errors without raw stack traces.
+- [ ] Peloyame answer text remains readable with long responses.
+- [ ] Reduced-motion preference is respected.
+- [ ] Contrast and text wrapping remain acceptable in desktop and mobile layouts.
+
+## Deployment rehearsal
+
+- [ ] Frontend points to the intended backend origin.
+- [ ] Backend CORS lists exact deployed frontend origins, not `*` with credentials.
+- [ ] Production uses HTTPS and a strong JWT secret.
+- [ ] Deployed database storage persists across restart/redeploy.
+- [ ] Register a fresh test user, create entries, refresh, sign out/in, and verify persistence.
+- [ ] Confirm logs do not contain passwords, access tokens, Groq key, questions or financial context.
+- [ ] Rehearse the core journey twice in a row without a database reset or developer workaround.

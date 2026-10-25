@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Peloyame assistant mark</title>
+  <desc id="desc">A rounded terracotta speech mark with a cream central spark.</desc>
+  <rect x="2" y="2" width="60" height="60" rx="19" fill="#D96B43"/>
+  <path d="M16 25.5C16 19.149 21.149 14 27.5 14H37C44.18 14 50 19.82 50 27V33.5C50 40.127 44.627 45.5 38 45.5H29.6L20.25 51V43.414C17.64 41.092 16 37.704 16 34V25.5Z" fill="#FFFDF8" fill-opacity=".96"/>
+  <path d="M33 20.5L35.86 28.14L43.5 31L35.86 33.86L33 41.5L30.14 33.86L22.5 31L30.14 28.14L33 20.5Z" fill="#D96B43"/>
+</svg>

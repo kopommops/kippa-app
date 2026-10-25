@@ -1,3 +1,4 @@
+import { AccountPortal } from './AccountPortal'
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import {
@@ -124,7 +125,7 @@ const preciseMoney = (value: number) => new Intl.NumberFormat(LOCALE, {
   style: 'currency', currency: CURRENCY, maximumFractionDigits: 2,
 }).format(value)
 
-export default function App() {
+function DemoApp() {
   const [personas, setPersonas] = useState<Persona[]>([])
   const [selectedId, setSelectedId] = useState('')
   const [dashboard, setDashboard] = useState<Dashboard | null>(null)
@@ -264,7 +265,7 @@ export default function App() {
             <ChevronDown className="select-chevron" size={17} />
           </ListboxButton>
           <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100 translate-y-0" leaveTo="opacity-0 -translate-y-1">
-            <ListboxOptions anchor={{ to: 'bottom start', gap: '8px', padding: '12px' }} className="persona-options">
+            <ListboxOptions className="persona-options">
               {personas.map((persona) => (
                 <ListboxOption key={persona.id} value={persona.id} className={({ active }) => `persona-option ${active ? 'option-active' : ''}`}>
                   {({ selected }) => <>
@@ -282,7 +283,7 @@ export default function App() {
   )
 
   if (isLanding) {
-    return <LandingPage theme={theme} changeTheme={changeTheme} onExplore={() => navigate('overview')} />
+    return <LandingPage theme={theme} changeTheme={changeTheme} onExplore={() => navigate('overview')} onAccount={() => window.location.assign('/account')} />
   }
 
   return (
@@ -441,14 +442,14 @@ export default function App() {
 }
 
 type NavItemConfig = typeof NAV_ITEMS[number]
-function LandingPage({ theme, changeTheme, onExplore }: { theme: Theme; changeTheme: (next: Theme) => void; onExplore: () => void }) {
+function LandingPage({ theme, changeTheme, onExplore, onAccount }: { theme: Theme; changeTheme: (next: Theme) => void; onExplore: () => void; onAccount: () => void }) {
   return <div className="landing-page">
     <header className="landing-nav">
       <a className="landing-brand" href="/" aria-label="Pelo Finance home"><img src="/assets/pelo-mark.svg" alt="" /><span>Pelo Finance</span></a>
       <div className="landing-nav-actions">
         <span className="landing-demo-note">MADE FOR IRREGULAR INCOME</span>
         <button className="landing-theme-toggle" type="button" onClick={() => changeTheme(theme === 'light' ? 'dark' : 'light')} aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`} aria-pressed={theme === 'dark'} title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}>{theme === 'light' ? <Moon size={17} /> : <Sun size={17} />}</button>
-        <button className="landing-nav-cta" type="button" onClick={onExplore}>Explore the demo <ArrowRight size={16} /></button>
+        <button className="landing-nav-account-cta" type="button" onClick={onAccount}>Create account</button><button className="landing-nav-cta" type="button" onClick={onExplore}>Explore the demo <ArrowRight size={16} /></button>
       </div>
     </header>
     <main>
@@ -457,7 +458,7 @@ function LandingPage({ theme, changeTheme, onExplore }: { theme: Theme; changeTh
           <p className="landing-eyebrow"><span /> A CLEARER VIEW OF YOUR MONEY</p>
           <h1>Your income has a rhythm. <em>Make it visible.</em></h1>
           <p className="landing-lede">Pelo Finance helps people with irregular income understand their cash-flow patterns, prepare for quieter weeks, and see the consistency behind the work they do.</p>
-          <div className="landing-hero-actions"><button className="landing-primary-cta" type="button" onClick={onExplore}>Explore the demo <ArrowRight size={17} /></button><span className="landing-reassurance"><ShieldCheck size={15} /> Synthetic profiles. No bank connection.</span></div>
+          <div className="landing-hero-actions"><button className="landing-primary-cta" type="button" onClick={onExplore}>Explore the demo <ArrowRight size={17} /></button><button className="landing-secondary-cta" type="button" onClick={onAccount}>Create your account</button><span className="landing-reassurance"><ShieldCheck size={15} /> Synthetic profiles. No bank connection.</span></div>
           <div className="landing-proof-line"><span>SEE THE PATTERN</span><i /> <span>PREPARE FOR LEAN WEEKS</span><i /> <span>UNDERSTAND THE SIGNAL</span></div>
         </div>
         <div className="landing-art" aria-hidden="true"><div className="landing-art-ring ring-one" /><div className="landing-art-ring ring-two" /><img className="landing-glass-p" src="/assets/pelo-glass-p.svg" alt="" /><div className="landing-art-caption">POCKET-SIZED CLARITY<br />FOR REAL-LIFE RHYTHMS</div><div className="landing-art-index">PF / 01</div></div>
@@ -630,4 +631,20 @@ function SignalRow({ icon, title, body }: { icon: ReactNode; title: string; body
 
 function EmptyPanel({ title, body }: { title: string; body: string }) {
   return <div className="empty-panel"><span><Activity size={19} /></span><strong>{title}</strong><p>{body}</p></div>
+}
+
+
+// The authenticated account experience is separated from the synthetic demo route.
+// /account uses real user-owned records; / and /app/* remain the public demo.
+export default function App() {
+  const [pathname, setPathname] = useState(window.location.pathname)
+
+  useEffect(() => {
+    const syncPath = () => setPathname(window.location.pathname)
+    window.addEventListener('popstate', syncPath)
+    return () => window.removeEventListener('popstate', syncPath)
+  }, [])
+
+  if (pathname === '/account' || pathname.startsWith('/account/')) return <AccountPortal />
+  return <DemoApp />
 }

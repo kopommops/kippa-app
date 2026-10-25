@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="180" viewBox="0 0 240 180" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Start your cash-flow ledger</title>
+  <desc id="desc">An open ledger with two warm terracotta entries and a small spark.</desc>
+  <rect x="18" y="17" width="204" height="146" rx="28" fill="#F0E7DB"/>
+  <path d="M58 49C58 42.925 62.925 38 69 38H115V138H69C62.925 138 58 133.075 58 127V49Z" fill="#FFFDF8" stroke="#D8CDBF" stroke-width="2"/>
+  <path d="M115 38H162C168.075 38 173 42.925 173 49V127C173 133.075 168.075 138 162 138H115V38Z" fill="#FFFDF8" stroke="#D8CDBF" stroke-width="2"/>
+  <path d="M73 61H99M73 75H100M73 89H93" stroke="#C3B6A7" stroke-width="4" stroke-linecap="round"/>
+  <rect x="130" y="58" width="28" height="9" rx="4.5" fill="#D96B43"/>
+  <rect x="130" y="76" width="24" height="6" rx="3" fill="#D7C8B9"/>
+  <rect x="130" y="89" width="30" height="6" rx="3" fill="#D7C8B9"/>
+  <path d="M184 29L187.2 37.8L196 41L187.2 44.2L184 53L180.8 44.2L172 41L180.8 37.8L184 29Z" fill="#D96B43"/>
+  <circle cx="49" cy="143" r="7" fill="#D96B43" fill-opacity=".22"/>
+  <circle cx="195" cy="129" r="5" fill="#D96B43" fill-opacity=".32"/>
+</svg>

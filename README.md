@@ -1,227 +1,116 @@
 # Pelo Finance
 
-**Make your money story visible.**
+**Make your money story visible.** Pelo Finance is a Botswana-first cash-flow companion for owner-operated micro and small businesses. This hackathon build keeps the public synthetic demo separate from an authenticated MVP where a user can create an account, enter their own financial activity, view a transparent cash summary, see a factor-based illustrative PeloScore when enough records exist, test a lean week, and ask Peloyame for a read-only explanation.
 
-![Pelo Finance hero: a small-business owner recording daily sales in a warmly lit, terracotta-toned shop](docs/assets/pelo-landing-hero.webp)
+> **Scope and disclosures:** no live bank, mobile-money, OTP or credit-verification provider is connected by this implementation. Any such screen must be labelled as simulated. Forecasts use recent averages and are not validated predictions. PeloScore remains illustrative and is not a credit score or lending decision. Do not enter data you are not comfortable storing in a hackathon prototype.
 
-[Live demo](https://pelo-finance.vercel.app/) · [Source repository](https://github.com/kopommops/pelo-finance)
+## Implemented product paths
 
-Pelo Finance is a hackathon prototype exploring a practical question: how can people who earn irregularly make better sense of the money that moves through their lives? Income may arrive by day, week, season, cash sale, client job or several small streams. A single balance rarely tells the whole story. People also need to understand the pattern behind the balance: what came in, what went out, what a lean week might look like, and which assumptions shape the forecast.
+- `/` — public product landing page, with separate paths into the account journey and the synthetic demo.
+- `/account` — registration, sign-in, business setup, manual transaction entry, account dashboard, lean-week calculation and Peloyame Lite.
+- `/app/overview`, `/app/activity`, `/app/forecast`, `/app/peloscore`, `/app/settings` — the existing synthetic-data demonstration. This remains optional and must not be presented as the user's real account.
 
-Pelo Finance is being built around visibility rather than judgement. The goal is to turn a scattered money story into something people can explore, explain and plan around. **PeloScore** is an early, illustrative financial-consistency concept within that experience, not a credit score or a lending decision.
+## Stack
 
-> **Demo safety:** all profiles and transactions in this build are synthetic. The demo is not connected to a bank or mobile-money provider. Forecasts are estimates, and PeloScore is not statistically validated. Do not use this prototype for lending, pricing, eligibility, or other consequential decisions.
+- Frontend: React 18, TypeScript, Vite, Tailwind CSS, Headless UI, Lucide icons and Recharts.
+- Backend: FastAPI, SQLAlchemy, Pydantic, SQLite for local development; PostgreSQL is supported by the existing database URL normalisation.
+- Authentication: Argon2 password hashing through `pwdlib`, signed short-lived JWTs via `PyJWT`.
+- Peloyame: Groq API using `openai/gpt-oss-20b` as the default free-tier model, subject to the account's current model availability and rate limits.
 
-<p align="center">
-  <img src="docs/assets/pelo-mark.svg" alt="Pelo Finance mark" width="72" />
-</p>
+## Local setup (Windows PowerShell)
 
-## The experience
-
-The public demo is designed to let a reviewer follow the money story without sharing real financial information:
-
-1. **Choose a synthetic livelihood.** Explore an example profile rather than connecting a real account.
-2. **Read the pattern.** Review cash-flow activity and a summary of the demo profile.
-3. **Look ahead.** Explore a seven-day forecast, understanding that forecasts are estimates rather than promises.
-4. **Stress-test a lean week.** Compare the scenario with the baseline and observe how the outlook changes.
-5. **Inspect PeloScore.** Review an illustrative consistency signal with its limitations clearly stated.
-
-The public landing page introduces the idea; choosing **Explore the demo** opens the synthetic-data journey. The experience is intentionally transparent about the difference between a prototype and a real financial service.
-
-The current workspace routes are `/app/overview`, `/app/activity`, `/app/forecast`, `/app/peloscore` and `/app/settings`.
-
-## Product snapshot
-
-| | Current prototype |
-|---|---|
-| Product | Pelo Finance |
-| Flagship concept | PeloScore |
-| Audience hypothesis | People with irregular, seasonal, cash-based or multiple income sources, including small traders and independent service providers |
-| Frontend | React, TypeScript, Vite, Tailwind CSS, Headless UI, Lucide and Recharts |
-| Backend | Python, FastAPI and SQLAlchemy |
-| Local persistence | SQLite by default; deployment database depends on environment configuration |
-| Hosting | Public frontend on Vercel and API hosted separately |
-| Data | Synthetic demo personas and transactions |
-| Readiness | Hackathon prototype; not ready for real customer financial data |
-
-## How the system fits together
-
-The solid path represents the current demo architecture. The dashed section is a hardening roadmap, not a claim that those controls are implemented.
-
-![Pelo Finance current prototype architecture and planned hardening](docs/assets/system-architecture.svg)
-
-Current technology responsibilities:
-
-- **React + TypeScript** provide the browser experience and route-level screens.
-- **Vite and Tailwind CSS** support frontend development and styling.
-- **Headless UI, Lucide and Recharts** provide accessible interface primitives, icons and data visualisations.
-- **FastAPI** exposes the demo API, including persona, dashboard, transaction and scenario endpoints.
-- **SQLAlchemy** provides the persistence layer; SQLite is the local default. Confirm the actual deployed database from deployment configuration rather than inferring it from local settings.
-- **Vercel and the separate API host** publish the web UI and backend independently. The frontend's API base URL must point to the intended deployed API origin.
-
-### Demo API surface
-
-| Method | Endpoint | Purpose |
-|---|---|---|
-| `GET` | `/api/health` | Service health check |
-| `GET` | `/api/personas` | List synthetic demo profiles |
-| `GET` | `/api/personas/{id}/dashboard` | Return a profile dashboard summary |
-| `GET` | `/api/personas/{id}/transactions` | Return synthetic transactions |
-| `POST` | `/api/personas/{id}/simulate-lean-week` | Activate a lean-week demo scenario |
-| `POST` | `/api/personas/{id}/reset-scenario` | Reset a profile to baseline |
-
-These are prototype endpoints, not a user-authenticated financial-data API.
-
-## Behind the scenes: how we're approaching development
-
-Pelo Finance is being developed incrementally: start with a small end-to-end experience, test the journey, collect feedback, and prioritise the next improvement. Product decisions, visual design, code and security notes should describe the same reality.
-
-### Agile delivery, pragmatically applied
-
-We break work into manageable slices such as the demo journey, responsive navigation, cash-flow views, forecasting and scenario behaviour. The intended loop is to prioritise a small backlog, agree what a change should achieve, implement it, review the result, test the changed path and record follow-up issues. Scrum-style planning, check-ins, reviews and retrospectives are useful team practices where the team actually performs them; this README does not imply that every formal Scrum ceremony has been conducted.
-
-### Secure Software Development Lifecycle (SSDLC)
-
-Security belongs throughout the development lifecycle, not only just before deployment. Our documented lifecycle is:
-
-![Pelo Finance secure software development lifecycle](docs/assets/ssdlc-lifecycle.svg)
-
-The lifecycle is a process target. Each release still needs evidence that its relevant build, functional, accessibility and security checks passed. A diagram or checklist alone is not proof of a completed review.
-
-### STRIDE threat modelling
-
-STRIDE gives the team a vocabulary for exploring six classes of threat:
-
-- **Spoofing:** someone pretends to be another user or service.
-- **Tampering:** a client alters transaction values, identifiers or scenario inputs.
-- **Repudiation:** a sensitive action cannot be traced to a reliable event record.
-- **Information disclosure:** a user sees someone else's records or a log exposes sensitive data.
-- **Denial of service:** an endpoint or import consumes excessive resources.
-- **Elevation of privilege:** a user or service gets permissions beyond its role.
-
-For Pelo Finance, these risks make authentication, server-side ownership checks, safe import handling, secret management, data minimisation and negative authorization tests important future gates. The current product remains synthetic-data-only while these controls are being built and verified. The threat-modelling work is an initial design exercise, not an independent penetration test or security certification.
-
-### Engineering principles
-
-- **Make the demo honest:** synthetic data and simulation are labelled as such.
-- **Protect money meaning:** use exact decimal or integer-minor-unit arithmetic for authoritative ledger calculations before real balances are supported.
-- **Trust the server, not client IDs:** future account routes must derive identity from verified authentication and enforce record ownership on every request.
-- **Design for failure:** loading, empty, validation, error and retry states should be clear and accessible.
-- **Reduce data exposure:** do not place secrets in frontend variables or logs; collect only data the product needs.
-- **Verify before claiming:** treat planned controls as planned until code and tests provide evidence.
-
-### Frameworks and references
-
-The secure-development plan is informed by the NIST Secure Software Development Framework (SSDF), OWASP Application Security Verification Standard (ASVS), and OWASP application-security guidance. They are reference frameworks, not certifications, and no compliance claim is made by naming them.
-
-- [NIST Secure Software Development Framework (SSDF)](https://csrc.nist.gov/pubs/sp/800/218/final)
-- [OWASP Application Security Verification Standard (ASVS)](https://owasp.org/www-project-application-security-verification-standard/)
-- [OWASP Top 10](https://owasp.org/www-project-top-ten/)
-
-## Run locally
-
-Use Node.js 20 or newer and Python 3.11 or newer.
-
-### 1. Start the API
-
-```bash
-cd backend
-python -m venv .venv
-```
-
-Windows PowerShell:
+### 1. Backend
 
 ```powershell
+cd backend
+python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-```
-
-macOS/Linux:
-
-```bash
-source .venv/bin/activate
-```
-
-Then install and run the backend:
-
-```bash
+python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
+```
+
+If `backend/.env` already exists, **do not overwrite it**. Preserve the current `DATABASE_URL` so you do not accidentally point the application at a new, empty SQLite file. Add or update these values in that existing file:
+
+```dotenv
+APP_NAME=Pelo Finance API
+ENVIRONMENT=development
+JWT_SECRET_KEY=<a unique random string, at least 32 characters>
+GROQ_API_KEY=<your own Groq API key>
+GROQ_MODEL=openai/gpt-oss-20b
+PELOYAME_SESSION_LIMIT=5
+PELOYAME_DAILY_USER_LIMIT=20
+```
+
+Generate a local JWT secret with:
+
+```powershell
+python -c "import secrets; print(secrets.token_urlsafe(48))"
+```
+
+Use the API key only in `backend/.env` or your hosting provider's backend environment settings. Never put it in `frontend/.env.local`, React code, screenshots, documentation, Git history or public issue comments.
+
+Start the API from the `backend` directory:
+
+```powershell
 uvicorn app.main:app --reload --port 8000
 ```
 
-Copy `backend/.env.example` to `backend/.env` if local overrides are required. Keep secrets out of source control. Confirm the configured `DATABASE_URL` before assuming where the local database lives.
+Check `http://127.0.0.1:8000/api/health` and `http://127.0.0.1:8000/docs`.
 
-### 2. Start the frontend
+### 2. Frontend
 
-In a second terminal:
-
-```bash
-cd frontend
-npm install
-```
-
-Copy the example environment file:
+In a second PowerShell terminal:
 
 ```powershell
-Copy-Item .env.example .env.local
-```
-
-Set `VITE_API_BASE_URL=http://localhost:8000` in `frontend/.env.local` for local development and set `VITE_CURRENCY=BWP` unless you are deliberately testing another display currency. Then run:
-
-```bash
+cd frontend
+npm install
+if (-not (Test-Path .env.local)) { Copy-Item .env.example .env.local }
 npm run dev
 ```
 
-### 3. Build and test
+Confirm `frontend/.env.local` contains `VITE_API_BASE_URL=http://localhost:8000`. Visit the URL printed by Vite, usually `http://localhost:5173`.
 
-```bash
+### 3. User-flow rehearsal
+
+1. Choose **Create account** from the landing page or visit `/account` directly.
+2. Register a test business with a unique email address and an opening cash balance.
+3. Add at least three income/expense records across two dates. Confirm the balance reconciles as opening cash + recorded income − recorded expenses, and PeloScore becomes available only when its minimum history threshold is met.
+4. Refresh the page and confirm the session and entries still work. Sign out and sign back in.
+5. Register a second account. Verify it sees no transactions from the first account.
+6. Test the lean-week calculation and confirm it changes only the displayed projection—not the ledger.
+7. Ask Peloyame a question about the recorded summary, use up to five requests in the same browser session, then test a provider-limit or missing-key fallback.
+8. Separately enter the synthetic demo and confirm its data is labelled synthetic.
+
+### 4. Automated checks
+
+```powershell
+cd backend
+python -m pytest
+```
+
+In another terminal:
+
+```powershell
 cd frontend
 npm run build
 ```
 
-From the backend directory:
+The tests exercise registration, login, user-level transaction isolation, ledger arithmetic, input validation and missing-key behaviour. Passing tests are necessary, not proof of production security.
 
-```bash
-python -m pytest
-```
+## Peloyame policy
 
-The browser SPA fallback is configured in `frontend/vercel.json` so refreshing a workspace route should serve the frontend entry point. Verify that network requests use the intended backend origin in the browser developer tools.
+Peloyame is read-only. Its API request includes a concise instruction primer, a JSON-encoded user question, and a server-generated financial summary. For the selected GPT-OSS model, instructions and input are sent in one user message, following the provider's current reasoning-model guidance. The model does not receive owner email, identity details or raw transaction descriptions. The backend enforces a five-question session limit and a separate daily user cap; client-side counters are only a user interface aid. Deterministic application code calculates balances and forecast values. Peloyame can explain them but must not invent data, expose secrets, access other users' records, execute transactions or make lending decisions.
 
-## What is implemented, and what is still ahead?
+Groq's free-tier rate limits are organisation-level and can change. Do not configure automatic upgrades or add a paid tier for the hackathon. When the provider returns a rate limit or becomes unavailable, show a friendly fallback and keep the ledger usable. Verify the model and your organisation's current limits in the [Groq model list](https://console.groq.com/docs/models) and [rate-limit documentation](https://console.groq.com/docs/rate-limits) before a live demonstration.
 
-### Implemented in the prototype
+## Data and deployment cautions
 
-- Public product landing page and synthetic-demo onboarding.
-- Synthetic personas and transaction history.
-- Dashboard summaries and seven-day forecast experience.
-- Lean-week scenario toggle and baseline comparison.
-- Illustrative PeloScore presentation and demo safety disclosure.
-- Responsive layout and light/dark theme foundations in the replacement frontend.
+- This is a hackathon MVP, not a production financial service. Use test data during development and demonstration.
+- `Base.metadata.create_all()` is used to add missing MVP tables while retaining the existing schema. It is not a replacement for Alembic migrations. Back up the database before integration and never delete a database file to fix a naming issue.
+- Local SQLite is suitable for development. A shared deployment needs a persistent database; ephemeral SQLite storage can lose user accounts and entries when the host restarts.
+- Configure the exact deployed frontend origin in backend `CORS_ORIGINS`. Use HTTPS in the deployed environment and a unique JWT secret.
+- JWTs are kept in `sessionStorage` for this sprint. This improves the UX over memory-only tokens but remains exposed to successful same-origin script injection. Add a strict content security policy and consider server-managed HttpOnly secure cookies before public use.
+- The lightweight usage limiter uses database rows and is suitable for a bounded hackathon. A multi-instance production service needs atomic shared rate limiting and concurrency tests.
+- Before inviting real customers, complete privacy/legal review, retention and deletion processes, backup/restore testing, access-control review and any applicable regulatory assessment.
 
-### Required before real financial data
-
-1. Server-verified authentication, session lifecycle and authorization.
-2. User/business ownership checks for every record and endpoint, with cross-account isolation tests.
-3. Private scenario state so one demo visitor cannot affect another visitor's experience.
-4. Managed persistent database, Alembic migrations, backup/restore exercises and a data-retention/deletion policy.
-5. Exact monetary arithmetic, transaction validation, robust import controls and idempotency.
-6. Security testing, incident response, secret handling, monitoring and a documented release/rollback process.
-7. Privacy and regulatory review, explicit consent, and an approved provider integration before any real bank or mobile-money data is introduced.
-8. A documented, versioned PeloScore methodology and representative validation before any predictive or outcome-related claims.
-
-Do not enter actual bank credentials, OTPs or real transaction data into this prototype. Real financial integrations should use approved provider-hosted consent/authorization flows, never a form that collects bank passwords.
-
-## Project documentation
-
-- [Product requirements](PRD.md)
-- [Design system](DESIGN.md)
-- [Secure development lifecycle](docs/ssdlc.md)
-- [STRIDE threat model](docs/threat-model.md)
-- [Architecture notes](docs/system-architecture.md)
-
-## Feedback
-
-This is an evolving hackathon project. Feedback is especially useful on whether the product story is clear, whether the cash-flow and lean-week views are understandable, and what a user would need to trust the experience. Please report UI issues, confusing language, accessibility problems or missing test cases through the repository's issue workflow.
-
----
-
-**Pelo Finance** — *Make your money story visible.*
+See [PRD.md](PRD.md), [DESIGN.md](DESIGN.md), [docs/IMPLEMENTATION-RUNBOOK.md](docs/IMPLEMENTATION-RUNBOOK.md), [docs/PELOYAME-PROMPT-AND-GUARDRAILS.md](docs/PELOYAME-PROMPT-AND-GUARDRAILS.md) and [docs/QA-CHECKLIST.md](docs/QA-CHECKLIST.md).
