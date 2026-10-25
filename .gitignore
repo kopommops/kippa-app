@@ -8,6 +8,9 @@ venv/
 *.sqlite3
 .env
 .env.example
+.env.local
+.env.test
+.env.production
 
 # Node
 node_modules/
