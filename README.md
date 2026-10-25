@@ -10,24 +10,23 @@ Pelo Finance is a hackathon prototype exploring a practical question: how can pe
 
 Pelo Finance is being built around visibility rather than judgement. The goal is to turn a scattered money story into something people can explore, explain and plan around. **PeloScore** is an early, illustrative financial-consistency concept within that experience, not a credit score or a lending decision.
 
-> **Demo safety:** all profiles and transactions in this build are synthetic. The demo is not connected to a bank or mobile-money provider. Forecasts are estimates, and PeloScore is not statistically validated. Do not use this prototype for lending, pricing, eligibility, or other consequential decisions.
+>**Prototype safety:** the public demo profiles and their transactions are synthetic. Registered users can also create their own prototype account and enter test financial records, which are persisted through the hosted backend and database. The bank-connection workflow and its incoming/outgoing events are simulations—not live bank or mobile-money connections. Forecasts are estimates, and PeloScore is illustrative and not statistically validated. Do not enter bank passwords, card security codes or OTPs, and do not use this prototype for lending, eligibility or other consequential decisions.
 
-![Pelo Finance mark](docs/assets/pelo-mark.svg)
+![Pelo Finance mark](frontend/public/assets/pelo-mark.svg)
 
 
 ## The experience
 
-The public demo is designed to let a reviewer follow the money story without sharing real financial information:
+Pelo Finance has two ways to explore the product:
 
-1. **Choose a synthetic livelihood.** Explore an example profile rather than connecting a real account.
-2. **Read the pattern.** Review cash-flow activity and a summary of the demo profile.
-3. **Look ahead.** Explore a seven-day forecast, understanding that forecasts are estimates rather than promises.
-4. **Stress-test a lean week.** Compare the scenario with the baseline and observe how the outlook changes.
-5. **Inspect PeloScore.** Review an illustrative consistency signal with its limitations clearly stated.
+1. **Synthetic demo:** choose an example livelihood and review its dashboard, transaction activity, forecast, lean-week scenario and illustrative PeloScore without sharing personal financial information.
+2. **Private account:** register or sign in to manage a business profile and the test financial records entered for that account.
 
-The public landing page introduces the idea; choosing **Explore the demo** opens the synthetic-data journey. The experience is intentionally transparent about the difference between a prototype and a real financial service.
+The private account has six sections: **Overview**, **Activity**, **Forecast**, **PeloScore**, **Peloyame** and **Settings**. Peloyame provides read-only explanations grounded in the permitted account context. Settings provides account-management controls.
 
-The current workspace routes are `/app/overview`, `/app/activity`, `/app/forecast`, `/app/peloscore` and `/app/settings`.
+The bank-connection flow is a demonstration only. It can show simulated incoming/outgoing events and in-app notifications, but it does not connect to a real bank or move money. Look for the simulation label wherever these events appear.
+
+The synthetic-demo routes include `/app/overview`, `/app/activity`, `/app/forecast`, `/app/peloscore` and `/app/settings`. The authenticated workspace is available through `/account`; its sections are navigated within the private account experience.
 
 ## Product snapshot
 
@@ -35,17 +34,20 @@ The current workspace routes are `/app/overview`, `/app/activity`, `/app/forecas
 |---|---|
 | Product | Pelo Finance |
 | Flagship concept | PeloScore |
-| Audience hypothesis | People with irregular, seasonal, cash-based or multiple income sources, including small traders and independent service providers |
+| Team | Kgotla Data Labs |
+| Audience hypothesis | Owner-operated micro and small businesses, including small traders and independent service providers; initial validation focus is Botswana |
 | Frontend | React, TypeScript, Vite, Tailwind CSS, Headless UI, Lucide and Recharts |
 | Backend | Python, FastAPI and SQLAlchemy |
-| Local persistence | SQLite by default; deployment database depends on environment configuration |
-| Hosting | Public frontend on Vercel and API hosted separately |
-| Data | Synthetic demo personas and transactions |
-| Readiness | Hackathon prototype; not ready for real customer financial data |
+| Database | SQLite for local development where configured; Supabase PostgreSQL for the deployed backend |
+| Migrations | Alembic; current deployed migration target is `20261025_0002` |
+| Hosting | Frontend on Vercel; API on Render; database on Supabase PostgreSQL |
+| Data | Synthetic public-demo profiles plus registered-account prototype records; bank events are simulated |
+| AI | Peloyame uses the Groq API for bounded, contextual explanations |
+| Readiness | Hackathon MVP; not a production banking service, and not validated for consequential financial decisions |
 
 ## How the system fits together
 
-The solid path represents the current demo architecture. The dashed section is a hardening roadmap, not a claim that those controls are implemented.
+The deployed prototype uses Vercel for the browser UI, a FastAPI backend on Render, Supabase PostgreSQL for persistent hosted data, and Groq for Peloyame responses. Local development may use SQLite depending on `DATABASE_URL`. Simulated bank activity is a prototype workflow, not a live financial institution integration.
 
 ![Pelo Finance current prototype architecture and planned hardening](docs/assets/system-architecture.svg)
 
@@ -70,6 +72,8 @@ Current technology responsibilities:
 | `POST` | `/api/personas/{id}/reset-scenario` | Reset a profile to baseline |
 
 These are prototype endpoints, not a user-authenticated financial-data API.
+
+The backend also exposes authenticated account operations for registration/login, account summaries, transaction management, settings, data export/deletion, Peloyame and the bank-simulation/notification workflow. These operations must be used through the deployed API and are subject to backend authentication and ownership checks; they are not the same as the public synthetic-demo endpoints.
 
 ## Behind the scenes: how we're approaching development
 
@@ -98,13 +102,13 @@ STRIDE gives the team a vocabulary for exploring six classes of threat:
 - **Denial of service:** an endpoint or import consumes excessive resources.
 - **Elevation of privilege:** a user or service gets permissions beyond its role.
 
-For Pelo Finance, these risks make authentication, server-side ownership checks, safe import handling, secret management, data minimisation and negative authorization tests important future gates. The current product remains synthetic-data-only while these controls are being built and verified. The threat-modelling work is an initial design exercise, not an independent penetration test or security certification.
+For Pelo Finance, these risks make authentication, server-side ownership checks, safe import handling, secret management, data minimisation and negative authorization tests important future gates. The prototype now includes an authenticated account path and hosted persistence, but these are not a security certification. Account isolation, session lifecycle, data handling, operational monitoring and production threat mitigations must continue to be tested. The threat-modelling work is an initial design exercise, not an independent penetration test or security certification.
 
 ### Engineering principles
 
 - **Make the demo honest:** synthetic data and simulation are labelled as such.
-- **Protect money meaning:** use exact decimal or integer-minor-unit arithmetic for authoritative ledger calculations before real balances are supported.
-- **Trust the server, not client IDs:** future account routes must derive identity from verified authentication and enforce record ownership on every request.
+- **Protect money meaning:** keep authoritative calculations in validated backend logic and use integer minor units for the account ledger; forecasts remain estimates with visible assumptions and data limitations.
+- **Trust the server, not client IDs:** authenticated account routes must derive identity from verified authentication and enforce record ownership on every request; regression tests should attempt cross-account access.
 - **Design for failure:** loading, empty, validation, error and retry states should be clear and accessible.
 - **Reduce data exposure:** do not place secrets in frontend variables or logs; collect only data the product needs.
 - **Verify before claiming:** treat planned controls as planned until code and tests provide evidence.
@@ -144,10 +148,10 @@ Then install and run the backend:
 
 ```bash
 python -m pip install -r requirements.txt
+python -m alembic upgrade head
 uvicorn app.main:app --reload --port 8000
 ```
-
-Copy `backend/.env.example` to `backend/.env` if local overrides are required. Keep secrets out of source control. Confirm the configured `DATABASE_URL` before assuming where the local database lives.
+For a new, empty database, this applies the baseline and subsequent migrations. For an existing database whose tables were created before Alembic tracking, inspect and back up the database before applying migrations. Never run the baseline migration against an existing schema without first verifying the starting revision.
 
 ### 2. Start the frontend
 
@@ -187,27 +191,29 @@ The browser SPA fallback is configured in `frontend/vercel.json` so refreshing a
 
 ## What is implemented, and what is still ahead?
 
-### Implemented in the prototype
+### Implemented in the current hackathon MVP
 
-- Public product landing page and synthetic-demo onboarding.
-- Synthetic personas and transaction history.
-- Dashboard summaries and seven-day forecast experience.
-- Lean-week scenario toggle and baseline comparison.
-- Illustrative PeloScore presentation and demo safety disclosure.
-- Responsive layout and light/dark theme foundations in the replacement frontend.
+- Public landing page and synthetic-demo journey.
+- Registration and login for the private account experience.
+- Account-scoped business profile and ledger operations.
+- Overview, Activity, Forecast, PeloScore, Peloyame and Settings sections.
+- Short-term forecast and lean-week scenario experience.
+- Illustrative PeloScore with stated limitations.
+- Groq-backed Peloyame with bounded input/context and read-only intent.
+- Simulated bank connections, transaction events and in-app notifications.
+- Supabase PostgreSQL hosting and Alembic schema migrations.
+- Responsive layouts and light/dark theme support.
 
-### Required before real financial data
+### Remaining work before any real financial integration or commercial launch
 
-1. Server-verified authentication, session lifecycle and authorization.
-2. User/business ownership checks for every record and endpoint, with cross-account isolation tests.
-3. Private scenario state so one demo visitor cannot affect another visitor's experience.
-4. Managed persistent database, Alembic migrations, backup/restore exercises and a data-retention/deletion policy.
-5. Exact monetary arithmetic, transaction validation, robust import controls and idempotency.
-6. Security testing, incident response, secret handling, monitoring and a documented release/rollback process.
-7. Privacy and regulatory review, explicit consent, and an approved provider integration before any real bank or mobile-money data is introduced.
-8. A documented, versioned PeloScore methodology and representative validation before any predictive or outcome-related claims.
+1. Complete broader security testing, including session lifecycle and cross-account isolation.
+2. Review privacy, retention/deletion, incident response, backup/restore and operational monitoring.
+3. Complete a full production threat review and validate all deployed settings/secrets.
+4. Obtain a suitable bank/mobile-money provider and implement an approved consent/authorization flow before claiming real account connectivity.
+5. Validate forecasting performance against suitable data and document PeloScore methodology before making predictive or outcome-related claims.
+6. Conduct relevant legal and regulatory review before processing real customer financial data commercially.
 
-Do not enter actual bank credentials, OTPs or real transaction data into this prototype. Real financial integrations should use approved provider-hosted consent/authorization flows, never a form that collects bank passwords.
+Do not enter bank passwords, card security codes or OTPs into Pelo Finance. The bank simulation is not a live provider integration. Do not use forecasts or PeloScore to make lending, eligibility or other consequential decisions.
 
 ## Project documentation
 
