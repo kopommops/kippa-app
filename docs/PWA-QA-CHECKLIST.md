@@ -14,19 +14,19 @@ Run this checklist against the deployed Vercel site after merging the PWA files.
 
 ## Browser installation
 
-- [ ] Chrome DevTools → Application → Manifest shows Pelo Finance, standalone display and icons with no manifest errors.
-- [ ] Application → Service Workers shows `/sw.js` installed and activated.
-- [ ] The in-app **Install app** button triggers the browser prompt when supported.
-- [ ] If no prompt is available, the in-app help gives relevant manual install directions.
-- [ ] Installed app opens in a standalone window and recognises it is already installed.
-- [ ] Test Chrome desktop; test Android Chrome or iOS Safari if a device is available.
+- [X] Chrome DevTools → Application → Manifest shows Pelo Finance, standalone display and icons with no manifest errors.
+- [X] Application → Service Workers shows `/sw.js` installed and activated.
+- [X] The in-app **Install app** button triggers the browser prompt when supported.
+- [X] If no prompt is available, the in-app help gives relevant manual install directions.
+- [X] Installed app opens in a standalone window and recognises it is already installed.
+- [X] Test Chrome desktop; test Android Chrome or iOS Safari if a device is available.
 
 ## Regression and data-safety checks
 
-- [ ] Landing, login/signup, synthetic demo and private account still render.
-- [ ] Light/dark theme toggle continues working.
-- [ ] No private API response is present in Cache Storage.
-- [ ] Offline navigation may show the app shell, but account/API features report network unavailability honestly.
-- [ ] Service worker does not intercept/cache API requests or non-GET mutations.
-- [ ] Refresh direct SPA routes such as `/app/overview` and `/account` to verify Vercel rewrites still work.
-- [ ] The installed app updates after a new deployment and stale caches are removed when the worker version changes.
+- [X] Landing, login/signup, synthetic demo and private account still render.
+- [X] Light/dark theme toggle continues working.
+- [X] No private API response is present in Cache Storage.
+- [X] Offline navigation may show the app shell, but account/API features report network unavailability honestly.
+- [X] Service worker does not intercept/cache API requests or non-GET mutations.
+- [X] Refresh direct SPA routes such as `/app/overview` and `/account` to verify Vercel rewrites still work.
+- [X] The installed app updates after a new deployment and stale caches are removed when the worker version changes.
