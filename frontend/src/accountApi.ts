@@ -93,7 +93,7 @@ async function request<T>(path: string, init: RequestInit = {}, authenticated = 
 }
 
 export const accountApi = {
-  register: (payload: { owner_name: string; email: string; password: string; business_name: string; business_type: string; opening_balance: number }) =>
+  register: (payload: { owner_name: string; email: string; password: string; business_name: string; business_type: string; opening_balance: number; accepted_terms: boolean; acknowledged_privacy: boolean; peloyame_ai_consent: boolean }) =>
     request<AuthResponse>('/api/auth/register', { method: 'POST', body: JSON.stringify(payload) }, false),
   login: (payload: { email: string; password: string }) => request<AuthResponse>('/api/auth/login', { method: 'POST', body: JSON.stringify(payload) }, false),
   me: () => request<AuthResponse>('/api/auth/me'),
@@ -115,4 +115,11 @@ export const accountApi = {
     request<AccountTransaction>(`/api/account/bank/connections/${connectionId}/simulate-event`, { method: 'POST', body: JSON.stringify(payload) }),
   notifications: () => request<AccountNotification[]>('/api/account/notifications'),
   markNotificationRead: (id: number) => request<AccountNotification>(`/api/account/notifications/${id}/read`, { method: 'POST' }),
+  consent: () => request<ConsentStatus>('/api/account/consent'),
+  peloyameUsage: () => request<{ used_today: number; daily_limit: number; remaining_questions: number; resets_at: string }>('/api/peloyame/usage'),
+  updatePeloyameConsent: (peloyame_ai_consent: boolean) => request<ConsentStatus>('/api/account/consent/peloyame', { method: 'PATCH', body: JSON.stringify({ peloyame_ai_consent }) }),
+
 }
+
+
+export type ConsentStatus = { terms_current: boolean; privacy_current: boolean; peloyame_ai_consent: boolean; terms_version: string; privacy_version: string; ai_policy_version: string }

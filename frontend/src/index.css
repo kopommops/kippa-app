@@ -643,3 +643,5 @@ p { margin-top: 0; }
 .global-back-to-top:hover { transform: translateY(-2px); border-color: var(--terracotta); }
 :root[data-theme="dark"] .topbar { box-shadow: 0 1px rgba(255,255,255,.04); }
 @media (max-width: 680px) { .global-back-to-top { right: 13px; bottom: 96px; min-height: 40px; } }
+
+.landing-policy-links{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px}.landing-policy-links button{background:none;border:0;padding:0;color:inherit;font:inherit;font-size:12px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}

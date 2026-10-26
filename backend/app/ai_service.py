@@ -42,6 +42,15 @@ OUT_OF_SCOPE_PATTERNS = (
 )
 
 
+def daily_usage_status(db: Session, user_id: int) -> dict:
+    today = datetime.now(timezone.utc).date()
+    used = int(db.scalar(select(func.coalesce(func.sum(AIUsage.question_count), 0)).where(
+        AIUsage.user_id == user_id, AIUsage.usage_date == today,
+    )) or 0)
+    limit = settings.peloyame_daily_user_limit
+    return {"used_today": used, "daily_limit": limit, "remaining_questions": max(0, limit - used), "resets_at": "00:00 UTC"}
+
+
 def _usage_for(db: Session, user_id: int, session_id: str, usage_date):
     return db.scalar(select(AIUsage).where(
         AIUsage.user_id == user_id,
@@ -51,25 +60,22 @@ def _usage_for(db: Session, user_id: int, session_id: str, usage_date):
 
 
 def _consume_quota(db: Session, user_id: int, session_id: str) -> tuple[int, int]:
+    """Consume one account-wide daily question. Session IDs remain for API compatibility only."""
     today = datetime.now(timezone.utc).date()
-    usage = _usage_for(db, user_id, session_id, today)
-    if usage is not None and usage.question_count >= settings.peloyame_session_limit:
-        raise HTTPException(status_code=429, detail="You've reached the five-question limit for this Peloyame session. Start a new session later or continue without AI.")
     used_today = db.scalar(select(func.coalesce(func.sum(AIUsage.question_count), 0)).where(
-        AIUsage.user_id == user_id,
-        AIUsage.usage_date == today,
+        AIUsage.user_id == user_id, AIUsage.usage_date == today,
     )) or 0
     if used_today >= settings.peloyame_daily_user_limit:
         raise HTTPException(status_code=429, detail="Peloyame's daily question allowance has been reached for this account. Please try again tomorrow.")
+    usage = _usage_for(db, user_id, session_id, today)
     if usage is None:
         usage = AIUsage(user_id=user_id, session_id=session_id, usage_date=today, question_count=1)
         db.add(usage)
     else:
         usage.question_count += 1
     db.commit()
-    remaining_session = max(0, settings.peloyame_session_limit - usage.question_count)
-    remaining_daily = max(0, settings.peloyame_daily_user_limit - (used_today + 1))
-    return remaining_session, remaining_daily
+    remaining_daily = max(0, settings.peloyame_daily_user_limit - int(used_today) - 1)
+    return remaining_daily, remaining_daily
 
 
 def answer_question(db: Session, user: User, question: str, session_id: str) -> dict:
@@ -81,20 +87,20 @@ def answer_question(db: Session, user: User, question: str, session_id: str) -> 
         raise HTTPException(status_code=422, detail="Please enter a clear question of 600 characters or fewer.")
 
     # Every accepted question, including a safety refusal, consumes the server-side allowance.
-    remaining_session, remaining_daily = _consume_quota(db, user.id, session_id)
+    remaining_questions, remaining_daily = _consume_quota(db, user.id, session_id)
 
     # Defensive heuristics are not a complete prompt-injection detector; instructions and data minimisation are primary controls.
     if any(pattern.search(cleaned) for pattern in INJECTION_PATTERNS):
         return {
             "answer": "I can help explain your cash position, recorded activity or short-term outlook. I cannot reveal private instructions, secrets or other customers' information.",
-            "remaining_questions": remaining_session,
+            "remaining_questions": remaining_questions,
             "daily_questions_remaining": remaining_daily,
             "mode": "read_only",
         }
     if any(pattern.search(cleaned) for pattern in OUT_OF_SCOPE_PATTERNS):
         return {
             "answer": "I can help you understand recorded cash flow and plan questions to discuss with a qualified adviser, but I cannot make lending decisions or provide definitive tax, legal or investment advice.",
-            "remaining_questions": remaining_session,
+            "remaining_questions": remaining_questions,
             "daily_questions_remaining": remaining_daily,
             "mode": "read_only",
         }
@@ -134,7 +140,7 @@ def answer_question(db: Session, user: User, question: str, session_id: str) -> 
         answer = answer[:1200]
         return {
             "answer": answer,
-            "remaining_questions": remaining_session,
+            "remaining_questions": remaining_questions,
             "daily_questions_remaining": remaining_daily,
             "mode": "read_only",
         }

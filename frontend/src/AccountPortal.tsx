@@ -99,12 +99,11 @@ export function AccountPortal() {
   const [bankConnectForm, setBankConnectForm] = useState({ provider_code: 'demo_fnb' as 'demo_fnb' | 'demo_mobile_money' | 'demo_savings', account_label: 'Main demo account' })
   const [bankEventForm, setBankEventForm] = useState({ connection_id: '', kind: 'income' as 'income' | 'expense', amount: '250.00', category: 'Sales', description: 'Simulated customer payment' })
   const [question, setQuestion] = useState('')
-  const [remainingQuestions, setRemainingQuestions] = useState(() => {
-    syncPeloyameUsageDay()
-    const stored = window.sessionStorage.getItem(REMAINING_KEY)
-    const parsed = stored == null ? 5 : Number(stored)
-    return Number.isFinite(parsed) ? Math.max(0, Math.min(5, parsed)) : 5
-  })
+  const [remainingQuestions, setRemainingQuestions] = useState(20)
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
+  const [acknowledgedPrivacy, setAcknowledgedPrivacy] = useState(false)
+  const [aiConsent, setAiConsent] = useState(false)
+  const [consentLoaded, setConsentLoaded] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([
     { id: 'welcome', role: 'assistant', text: 'Hi, I’m Peloyame. Ask me about the financial summary you have entered here. I can explain the numbers and short-term outlook, but I cannot move money or provide a lending decision.' },
   ])
@@ -133,6 +132,8 @@ export function AccountPortal() {
       accountApi.settings(), accountApi.bankConnections(), accountApi.notifications(),
     ])
     setSettings(nextSettings)
+    try { const consent = await accountApi.consent(); setAiConsent(consent.peloyame_ai_consent); setConsentLoaded(true); } catch { setConsentLoaded(false) }
+    try { const usage = await accountApi.peloyameUsage(); setRemainingQuestions(usage.remaining_questions); } catch { /* The chat endpoint remains authoritative if usage status is unavailable. */ }
     setConnections(nextConnections)
     setNotifications(nextNotifications)
     setBankEventForm(previous => ({ ...previous, connection_id: previous.connection_id || String(nextConnections[0]?.id ?? '') }))
@@ -188,11 +189,12 @@ export function AccountPortal() {
         result = await accountApi.register({
           owner_name: authForm.owner_name.trim(), email: authForm.email.trim(), password: authForm.password,
           business_name: authForm.business_name.trim(), business_type: authForm.business_type,
-          opening_balance: Number(authForm.opening_balance || '0'),
+          opening_balance: Number(authForm.opening_balance || '0'), accepted_terms: acceptedTerms, acknowledged_privacy: acknowledgedPrivacy, peloyame_ai_consent: aiConsent,
         })
         setNotice('Your account is ready. Add a few records to make your cash summary more useful.')
       } else result = await accountApi.login({ email: authForm.email.trim(), password: authForm.password })
       acceptAuth(result)
+      setRemainingQuestions(20)
       setAuthForm(previous => ({ ...previous, password: '' }))
     } catch (err) { setError(err instanceof Error ? err.message : 'Unable to complete sign in. Please try again.') }
     finally { setAuthBusy(false) }
@@ -235,13 +237,14 @@ export function AccountPortal() {
     setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'user', text: prompt }])
     setQuestion(''); setBusy(true); setError('')
     try {
+      if (!aiConsent) throw new Error('Enable Peloyame AI processing in Settings before asking a question.')
       const response = await accountApi.askPeloyame({ question: prompt, session_id: getPeloyameSessionId() })
       setMessages(previous => [...previous, { id: crypto.randomUUID(), role: 'assistant', text: response.answer }])
-      setRemainingQuestions(response.remaining_questions)
-      window.sessionStorage.setItem(REMAINING_KEY, String(response.remaining_questions))
+      setRemainingQuestions(response.daily_questions_remaining)
+      window.sessionStorage.setItem(REMAINING_KEY, String(response.daily_questions_remaining))
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Peloyame is temporarily unavailable. Your records are unaffected.'
-      if (/five-question limit|daily question allowance/i.test(message)) { setRemainingQuestions(0); window.sessionStorage.setItem(REMAINING_KEY, '0') }
+      if (/daily question allowance|daily limit/i.test(message)) { setRemainingQuestions(0); window.sessionStorage.setItem(REMAINING_KEY, '0') }
       else if (/Peloyame could not respond just now|provider.s free-tier limit/i.test(message)) {
         setRemainingQuestions(previous => { const next = Math.max(0, previous - 1); window.sessionStorage.setItem(REMAINING_KEY, String(next)); return next })
       }
@@ -354,6 +357,11 @@ export function AccountPortal() {
             </>}
             <label>Email address<input required type="email" autoComplete="email" maxLength={254} value={authForm.email} onChange={event => setAuthForm({ ...authForm, email: event.target.value })} /></label>
             <label>Password<input required type="password" minLength={mode === 'register' ? 10 : 1} maxLength={128} autoComplete={mode === 'register' ? 'new-password' : 'current-password'} value={authForm.password} onChange={event => setAuthForm({ ...authForm, password: event.target.value })} />{mode === 'register' && <span className="account-field-help">Use at least 10 characters. Do not reuse a password from another account.</span>}</label>
+            {mode === 'register' && <div className="account-consent-fields">
+              <label className="account-consent-check"><input type="checkbox" checked={acceptedTerms} onChange={event => setAcceptedTerms(event.target.checked)} required /> <span>I agree to the <button type="button" className="account-inline-policy" onClick={() => window.dispatchEvent(new CustomEvent('pelo:open-privacy', { detail: { section: 'terms' } }))}>Terms of Use</button>.</span></label>
+              <label className="account-consent-check"><input type="checkbox" checked={acknowledgedPrivacy} onChange={event => setAcknowledgedPrivacy(event.target.checked)} required /> <span>I have read the <button type="button" className="account-inline-policy" onClick={() => window.dispatchEvent(new CustomEvent('pelo:open-privacy', { detail: { section: 'privacy' } }))}>Privacy Notice</button>.</span></label>
+              <label className="account-consent-check"><input type="checkbox" checked={aiConsent} onChange={event => setAiConsent(event.target.checked)} /> <span>Optional: I consent to Peloyame sending a limited financial summary and my question to Groq to generate an answer. <button type="button" className="account-inline-policy" onClick={() => window.dispatchEvent(new CustomEvent('pelo:open-privacy', { detail: { section: 'ai' } }))}>How AI uses data</button></span></label>
+            </div>}
             {error && <div className="account-alert error" role="alert">{error}</div>}
             {notice && <div className="account-alert success" role="status">{notice}</div>}
             <button className="account-primary-button" disabled={authBusy} type="submit">{authBusy ? <LoaderCircle size={17} className="account-spin" /> : mode === 'register' ? <Plus size={17} /> : <ArrowRight size={17} />}{authBusy ? 'Please wait…' : mode === 'register' ? 'Create my account' : 'Sign in securely'}</button>
@@ -361,7 +369,7 @@ export function AccountPortal() {
           <p className="account-disclaimer"><CircleHelp size={14} /> Hackathon MVP. No OTP is required for this prototype. Simulated bank events are not real bank data.</p>
         </div>
       </section>
-      <footer className="account-footer"><span>© Pelo Finance · Kgottla Data Labs</span><a href="/">Back to landing page <ArrowRight size={14} /></a></footer>
+      <footer className="account-footer"><span>© Pelo Finance · Kgottla Data Labs</span><span className="account-policy-links"><button type="button" onClick={() => window.dispatchEvent(new CustomEvent('pelo:open-privacy', { detail: { section: 'terms' } }))}>Terms</button><button type="button" onClick={() => window.dispatchEvent(new CustomEvent('pelo:open-privacy', { detail: { section: 'privacy' } }))}>Privacy</button><button type="button" onClick={() => window.dispatchEvent(new CustomEvent('pelo:open-privacy', { detail: { section: 'security' } }))}>Data & Security</button><button type="button" onClick={() => window.dispatchEvent(new CustomEvent('pelo:open-privacy', { detail: { section: 'ai' } }))}>Peloyame AI</button></span><a href="/">Back to landing page <ArrowRight size={14} /></a></footer>
     </main>
   }
 
@@ -422,10 +430,10 @@ export function AccountPortal() {
 
           {section === 'peloscore' && <div className="account-section-stack"><article className="account-panel account-score-detail"><div className="account-score-detail-head"><div><p className="account-eyebrow">PELOSCORE · EARLY INDICATOR</p><h2>A signal, not a verdict.</h2><p className="account-panel-copy">An illustrative indicator from records you entered. It is not a credit score, lending recommendation or guarantee.</p></div><span className="account-score-big">{dashboard.peloscore == null ? '—' : dashboard.peloscore}<small>/100</small></span></div><p className="account-score-status">{dashboard.peloscore_status}</p>{dashboard.peloscore_factors.length > 0 ? <div className="account-score-factors">{dashboard.peloscore_factors.map(factor => <div className="account-score-factor" key={factor.label}><div className="account-score-factor-top"><strong>{factor.label}</strong><span>{factor.value}</span></div><p>{factor.explanation}</p></div>)}</div> : <EmptyState title="More records are needed" text="Add at least three records across two different dates in the last 30 days before PeloScore calculates a number." />}</article></div>}
 
-          {section === 'peloyame' && <div className="account-section-stack"><article className="account-panel account-ai-workspace"><div className="account-ai-heading"><span><img src="/assets/peloyame-mark.svg" alt="" /></span><div><p className="account-eyebrow">PELOYAME LITE</p><h2>Ask about your cash</h2><p className="account-panel-copy">Peloyame receives a minimal financial summary, not your email or raw transaction descriptions. It is read-only and cannot move money or access another account.</p></div></div><div className="account-chat-log account-chat-log-large" aria-live="polite">{messages.map(message => <div key={message.id} className={`account-chat-message ${message.role}`}><span>{message.role === 'assistant' ? 'Peloyame' : 'You'}</span><p>{message.text}</p></div>)}</div><form className="account-chat-form" onSubmit={askPeloyame}><label htmlFor="peloyame-question" className="sr-only">Ask Peloyame a question</label><textarea id="peloyame-question" maxLength={600} rows={3} value={question} onChange={event => setQuestion(event.target.value)} placeholder="e.g. What should I pay attention to this week?" disabled={busy || remainingQuestions <= 0} /><button type="submit" aria-label="Send question" disabled={busy || !question.trim() || remainingQuestions <= 0}>{busy ? <LoaderCircle size={17} className="account-spin" /> : <Send size={17} />}</button></form><div className="account-chat-footer"><span>{remainingQuestions} questions left this session</span><span>Read-only · AI may be wrong</span></div><p className="account-small-note">If the free-tier provider limit is reached, Peloyame will pause gracefully. Do not share passwords, bank credentials or sensitive personal identifiers.</p></article></div>}
+          {section === 'peloyame' && <div className="account-section-stack"><article className="account-panel account-ai-workspace"><div className="account-ai-heading"><span><img src="/assets/peloyame-mark.svg" alt="" /></span><div><p className="account-eyebrow">PELOYAME LITE</p><h2>Ask about your cash</h2><p className="account-panel-copy">Peloyame receives a minimal financial summary, not your email or raw transaction descriptions. It is read-only and cannot move money or access another account.</p></div></div><div className="account-chat-log account-chat-log-large" aria-live="polite">{messages.map(message => <div key={message.id} className={`account-chat-message ${message.role}`}><span>{message.role === 'assistant' ? 'Peloyame' : 'You'}</span><p>{message.text}</p></div>)}</div><form className="account-chat-form" onSubmit={askPeloyame}><label htmlFor="peloyame-question" className="sr-only">Ask Peloyame a question</label><textarea id="peloyame-question" maxLength={600} rows={3} value={question} onChange={event => setQuestion(event.target.value)} placeholder="e.g. What should I pay attention to this week?" disabled={busy || remainingQuestions <= 0 || !aiConsent} /><button type="submit" aria-label="Send question" disabled={busy || !question.trim() || remainingQuestions <= 0 || !aiConsent}>{busy ? <LoaderCircle size={17} className="account-spin" /> : <Send size={17} />}</button></form><div className="account-chat-footer"><span>{remainingQuestions} questions left today</span><span>Read-only · AI may be wrong</span></div><p className="account-small-note">{!aiConsent ? "Enable optional Peloyame AI processing in Settings to ask questions. Your financial context is not sent while consent is off." : "If the free-tier provider limit is reached, Peloyame will pause gracefully. Do not share passwords, bank credentials or sensitive personal identifiers."}</p></article></div>}
         </>}
 
-        {section === 'settings' && <div className="account-section-stack">
+        {section === 'settings' && <div className="account-section-stack"><article className="account-panel"><p className="account-eyebrow">PRIVACY CONTROLS</p><h2>Peloyame AI processing</h2><p className="account-panel-copy">When enabled, a limited financial summary and your question may be sent to Groq to generate a response. This choice is separate from your account and can be withdrawn at any time.</p><label className="account-consent-check"><input type="checkbox" checked={aiConsent} disabled={busy || !consentLoaded} onChange={async event => { const next = event.target.checked; setAiConsent(next); try { const result = await accountApi.updatePeloyameConsent(next); setAiConsent(result.peloyame_ai_consent); setNotice(next ? 'Peloyame AI processing enabled.' : 'Peloyame AI processing disabled.') } catch (err) { setAiConsent(!next); setError(err instanceof Error ? err.message : 'Could not update AI consent.') } }} /><span>Allow Peloyame to process my question and limited financial summary with Groq.</span></label><button type="button" className="account-inline-policy" onClick={() => window.dispatchEvent(new CustomEvent('pelo:open-privacy', { detail: { section: 'ai' } }))}>Read the Peloyame AI disclosure</button></article>
           <article className="account-panel"><div className="account-panel-heading"><p className="account-eyebrow">ACCOUNT DETAILS</p><h2>Business profile</h2><p>Update your name and business details. Email changes and password recovery are not part of this hackathon slice.</p></div>{settings && <form className="account-form account-settings-form" onSubmit={saveSettings}><label>Full name<input required minLength={2} maxLength={80} value={settings.owner_name} onChange={event => setSettings({ ...settings, owner_name: event.target.value })} /></label><label>Email address<input type="email" value={settings.email} readOnly aria-readonly="true" /><span className="account-field-help">Email is read-only for this prototype.</span></label><label>Business name<input required minLength={2} maxLength={100} value={settings.business_name} onChange={event => setSettings({ ...settings, business_name: event.target.value })} /></label><label>Business type<select value={settings.business_type} onChange={event => setSettings({ ...settings, business_type: event.target.value })}>{BUSINESS_TYPES.map(type => <option key={type}>{type}</option>)}</select></label><button className="account-primary-button" type="submit" disabled={busy}><Save size={16} /> Save changes</button></form>}</article>
 
           <article className="account-panel account-bank-panel"><div className="account-ai-heading"><span><img src="/assets/pelo-bank-simulation.svg" alt="" /></span><div><p className="account-eyebrow">BANK CONNECTION · DEMO</p><h2>Simulate a connected account</h2><p className="account-panel-copy">This is a product-flow simulation. It does not contact a real bank, require credentials, or receive live transaction data.</p></div></div>
@@ -438,7 +446,7 @@ export function AccountPortal() {
         </div>}
 
         <p className="account-data-note"><ShieldCheck size={15} /> Cash summaries include manually entered records and clearly labelled simulated events. No live bank or mobile-money provider is connected.</p>
-        <footer className="account-footer"><span>© Pelo Finance · Kgottla Data Labs</span><a href="/app/overview">View synthetic demo <ArrowRight size={14} /></a></footer>
+        <footer className="account-footer"><span>© Pelo Finance · Kgottla Data Labs</span><span className="account-policy-links"><button type="button" onClick={() => window.dispatchEvent(new CustomEvent('pelo:open-privacy', { detail: { section: 'terms' } }))}>Terms</button><button type="button" onClick={() => window.dispatchEvent(new CustomEvent('pelo:open-privacy', { detail: { section: 'privacy' } }))}>Privacy</button><button type="button" onClick={() => window.dispatchEvent(new CustomEvent('pelo:open-privacy', { detail: { section: 'security' } }))}>Data & Security</button><button type="button" onClick={() => window.dispatchEvent(new CustomEvent('pelo:open-privacy', { detail: { section: 'ai' } }))}>Peloyame AI</button></span><a href="/app/overview">View synthetic demo <ArrowRight size={14} /></a></footer>
       </main>
     </div>
     <nav className="account-mobile-nav" aria-label="Private account navigation">{NAV_ITEMS.map(item => { const Icon = item.Icon; return <button key={item.id} type="button" className={section === item.id ? 'active' : ''} aria-current={section === item.id ? 'page' : undefined} onClick={() => { setSection(item.id); window.scrollTo({ top: 0, behavior: 'smooth' }) }}><Icon size={18} /><span>{item.label}</span>{item.id === 'settings' && unreadCount > 0 && <i>{unreadCount}</i>}</button> })}</nav>

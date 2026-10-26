@@ -1,4 +1,5 @@
 import { AccountPortal } from './AccountPortal'
+import { PrivacyCenter } from './PrivacyCenter'
 import { BackToTopButton } from './AppChrome'
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
@@ -472,7 +473,7 @@ function LandingPage({ theme, changeTheme, onExplore, onAccount }: { theme: Them
         <article><span className="landing-value-number">03</span><div><h2>Put signals in context.</h2><p>Explore PeloScore as an illustrative concept, with its assumptions and limits made clear.</p></div><Gauge size={20} /></article>
       </section>
     </main>
-    <footer className="landing-footer"><span>PELO FINANCE · MAKE YOUR MONEY STORY VISIBLE</span><p>This public prototype uses synthetic financial data. PeloScore is illustrative and is not a validated credit score or lending decision.</p></footer>
+    <footer className="landing-footer"><span>PELO FINANCE · MAKE YOUR MONEY STORY VISIBLE</span><p>This public prototype uses synthetic financial data. PeloScore is illustrative and is not a validated credit score or lending decision.</p><nav className="landing-policy-links" aria-label="Policies"><button type="button" onClick={() => window.dispatchEvent(new CustomEvent('pelo:open-privacy', { detail: { section: 'terms' } }))}>Terms of Use</button><button type="button" onClick={() => window.dispatchEvent(new CustomEvent('pelo:open-privacy', { detail: { section: 'privacy' } }))}>Privacy Notice</button><button type="button" onClick={() => window.dispatchEvent(new CustomEvent('pelo:open-privacy', { detail: { section: 'security' } }))}>Data & Security</button><button type="button" onClick={() => window.dispatchEvent(new CustomEvent('pelo:open-privacy', { detail: { section: 'ai' } }))}>Peloyame AI</button></nav></footer>
   </div>
 }
 
@@ -648,6 +649,6 @@ export default function App() {
     return () => window.removeEventListener('popstate', syncPath)
   }, [])
 
-  if (pathname === '/account' || pathname.startsWith('/account/')) return <><AccountPortal /><BackToTopButton /></>
-  return <><DemoApp /><BackToTopButton /></>
+  if (pathname === '/account' || pathname.startsWith('/account/')) return <><AccountPortal /><PrivacyCenter /><BackToTopButton /></>
+  return <><DemoApp /><PrivacyCenter /><BackToTopButton /></>
 }

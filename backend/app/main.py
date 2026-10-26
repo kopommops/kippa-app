@@ -11,15 +11,15 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from .account_service import account_transactions, build_account_dashboard, normalise_datetime
-from .ai_service import answer_question
+from .ai_service import answer_question, daily_usage_status
 from .config import settings
 from .database import Base, SessionLocal, engine, get_db
-from .models import AccountNotification, BankConnection, BusinessProfile, LedgerTransaction, Persona, Transaction, User
+from .models import AccountNotification, BankConnection, BusinessProfile, LedgerTransaction, Persona, Transaction, User, UserConsentRecord
 from .schemas import (
     AccountDashboardOut, AccountNotificationOut, AccountSettingsOut, AccountSettingsUpdate,
     AccountTransactionOut, AuthResponse, BankConnectionCreate, BankConnectionOut,
     BusinessOut, DashboardOut, LoginIn, PeloyameRequest, PeloyameResponse, PersonaOut,
-    RegisterIn, SimulatedBankEventIn, TransactionCreate, TransactionOut, UserOut,
+    RegisterIn, SimulatedBankEventIn, TransactionCreate, TransactionOut, UserOut, ConsentStatusOut, ConsentUpdateIn,
 )
 from .security import create_access_token, get_current_user, hash_password, verify_password
 from .seed import seed_if_empty
@@ -42,9 +42,9 @@ async def lifespan(app: FastAPI):
             if not inspector.has_table("alembic_version"):
                 raise RuntimeError("Database schema is not migrated. From the backend folder, run: python -m alembic upgrade head. For an existing schema, follow docs/MIGRATIONS-EXPLAINED.md first.")
             versions = connection.exec_driver_sql("SELECT version_num FROM alembic_version").scalars().all()
-        if versions != ["20261025_0002"]:
+        if versions != ["20261026_0003"]:
             current = ", ".join(versions) if versions else "no recorded revision"
-            raise RuntimeError(f"Database migration is at {current}; Pelo expects 20261025_0002. Back up first and follow docs/MIGRATIONS-EXPLAINED.md, then run python -m alembic upgrade head.")
+            raise RuntimeError(f"Database migration is at {current}; Pelo expects 20261026_0003. Back up first and follow docs/MIGRATIONS-EXPLAINED.md, then run python -m alembic upgrade head.")
     with SessionLocal() as db:
         seed_if_empty(db)
     yield
@@ -133,6 +133,8 @@ def reset_demo_scenario(persona_id: str, db: Session = Depends(get_db)):
 # --- Registration and login for real, manually entered MVP accounts. ---
 @app.post("/api/auth/register", response_model=AuthResponse, status_code=status.HTTP_201_CREATED)
 def register(payload: RegisterIn, db: Session = Depends(get_db)):
+    if not payload.accepted_terms or not payload.acknowledged_privacy:
+        raise HTTPException(status_code=422, detail="Please accept the Terms of Use and acknowledge the Privacy Notice to create an account.")
     existing = db.scalar(select(User).where(User.email == payload.email))
     if existing:
         raise HTTPException(status_code=409, detail="An account with this email already exists. Sign in instead.")
@@ -149,6 +151,13 @@ def register(payload: RegisterIn, db: Session = Depends(get_db)):
     )
     db.add(user)
     try:
+        db.flush()
+        now_records = [
+            UserConsentRecord(user_id=user.id, consent_type="terms", policy_version="2026-10-26-v1", accepted=True),
+            UserConsentRecord(user_id=user.id, consent_type="privacy", policy_version="2026-10-26-v1", accepted=True),
+            UserConsentRecord(user_id=user.id, consent_type="peloyame_ai", policy_version="2026-10-26-v1", accepted=payload.peloyame_ai_consent),
+        ]
+        db.add_all(now_records)
         db.commit()
         db.refresh(user)
     except IntegrityError:
@@ -430,10 +439,44 @@ def mark_notification_read(
     return item
 
 
+TERMS_POLICY_VERSION = "2026-10-26-v1"
+PRIVACY_POLICY_VERSION = "2026-10-26-v1"
+AI_POLICY_VERSION = "2026-10-26-v1"
+
+def _latest_consent(db: Session, user_id: int, consent_type: str):
+    return db.scalar(select(UserConsentRecord).where(
+        UserConsentRecord.user_id == user_id, UserConsentRecord.consent_type == consent_type
+    ).order_by(UserConsentRecord.created_at.desc(), UserConsentRecord.id.desc()).limit(1))
+
+@app.get("/api/account/consent", response_model=ConsentStatusOut)
+def get_consent_status(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    terms = _latest_consent(db, user.id, "terms")
+    privacy = _latest_consent(db, user.id, "privacy")
+    ai = _latest_consent(db, user.id, "peloyame_ai")
+    return ConsentStatusOut(
+        terms_current=bool(terms and terms.accepted and terms.policy_version == TERMS_POLICY_VERSION),
+        privacy_current=bool(privacy and privacy.accepted and privacy.policy_version == PRIVACY_POLICY_VERSION),
+        peloyame_ai_consent=bool(ai and ai.accepted and ai.policy_version == AI_POLICY_VERSION),
+        terms_version=TERMS_POLICY_VERSION, privacy_version=PRIVACY_POLICY_VERSION, ai_policy_version=AI_POLICY_VERSION,
+    )
+
+@app.patch("/api/account/consent/peloyame", response_model=ConsentStatusOut)
+def update_peloyame_consent(payload: ConsentUpdateIn, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    db.add(UserConsentRecord(user_id=user.id, consent_type="peloyame_ai", policy_version=AI_POLICY_VERSION, accepted=payload.peloyame_ai_consent))
+    db.commit()
+    return get_consent_status(user, db)
+
+@app.get("/api/peloyame/usage")
+def peloyame_usage(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    return daily_usage_status(db, user.id)
+
 @app.post("/api/peloyame/chat", response_model=PeloyameResponse)
 def peloyame_chat(
     payload: PeloyameRequest,
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    consent = _latest_consent(db, user.id, "peloyame_ai")
+    if not consent or not consent.accepted or consent.policy_version != AI_POLICY_VERSION:
+        raise HTTPException(status_code=403, detail="Enable Peloyame AI processing in Settings before asking a question. Your records have not been sent to the AI provider.")
     return answer_question(db, user, payload.question, str(payload.session_id))

@@ -330,3 +330,5 @@
   .account-transaction-row { grid-template-columns: 27px minmax(0,1fr) auto; }
   .account-delete-button { grid-column: 3; grid-row: 2; justify-self: end; }
 }
+
+.account-policy-links{align-items:center}.account-consent-check input:disabled{opacity:.55}

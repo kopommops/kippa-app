@@ -100,6 +100,9 @@ class RegisterIn(BaseModel):
     business_name: str = Field(min_length=2, max_length=100)
     business_type: str = Field(min_length=2, max_length=64)
     opening_balance: Decimal = Field(default=Decimal("0.00"), ge=Decimal("0"), le=Decimal("10000000"))
+    accepted_terms: bool
+    acknowledged_privacy: bool
+    peloyame_ai_consent: bool = False
 
     @field_validator("owner_name", "business_name", "business_type")
     @classmethod
@@ -377,3 +380,16 @@ class AccountNotificationOut(BaseModel):
     is_read: bool
     created_at: datetime
     bank_connection_id: int | None = None
+
+
+class ConsentStatusOut(BaseModel):
+    terms_current: bool
+    privacy_current: bool
+    peloyame_ai_consent: bool
+    terms_version: str
+    privacy_version: str
+    ai_policy_version: str
+
+
+class ConsentUpdateIn(BaseModel):
+    peloyame_ai_consent: bool

@@ -39,7 +39,7 @@ def test_duplicate_email_is_rejected(client):
         "password": "a-safe-test-password-194",
         "business_name": "Another Shop",
         "business_type": "Retail / tuck shop",
-        "opening_balance": 0,
+        "opening_balance": 0, "accepted_terms": True, "acknowledged_privacy": True, "peloyame_ai_consent": True,
     })
     assert duplicate.status_code == 409
 
