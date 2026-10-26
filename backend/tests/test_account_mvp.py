@@ -8,6 +8,9 @@ def register(client, email="owner@example.com", business="Dumela Foods"):
         "business_name": business,
         "business_type": "Food vendor",
         "opening_balance": 250.50,
+        "accepted_terms": True,
+        "acknowledged_privacy": True,
+        "peloyame_ai_consent": True,
     })
     assert response.status_code == 201, response.text
     payload = response.json()
