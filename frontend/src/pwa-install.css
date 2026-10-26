@@ -1,0 +1,63 @@
+/* Shared PWA install affordance; kept outside individual page layouts. */
+.pwa-install-button {
+  position: fixed;
+  z-index: 1200;
+  left: 18px;
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 10px 15px;
+  border: 1px solid #D96B43;
+  border-radius: 999px;
+  background: #D96B43;
+  color: #FFFDF8;
+  box-shadow: 0 8px 28px rgba(26, 26, 26, .18);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+.pwa-install-button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(26, 26, 26, .22); }
+.pwa-install-button:focus-visible, .pwa-install-close:focus-visible, .pwa-install-dismiss:focus-visible {
+  outline: 3px solid #176F68;
+  outline-offset: 3px;
+}
+.pwa-install-button:disabled { cursor: progress; opacity: .75; }
+.pwa-install-overlay {
+  position: fixed;
+  z-index: 1300;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(10, 19, 17, .56);
+  backdrop-filter: blur(5px);
+}
+.pwa-install-dialog {
+  position: relative;
+  width: min(100%, 440px);
+  padding: 30px;
+  border: 1px solid rgba(217, 107, 67, .28);
+  border-radius: 20px;
+  background: #FFFDF8;
+  color: #1A1A1A;
+  box-shadow: 0 22px 70px rgba(0,0,0,.24);
+}
+.pwa-install-dialog h2 { margin: 0 32px 14px 0; font-size: clamp(23px, 4vw, 30px); line-height: 1.1; letter-spacing: -.04em; }
+.pwa-install-dialog p { font-size: 14px; line-height: 1.65; }
+.pwa-install-eyebrow { margin: 0 0 9px; color: #C75C36; font-size: 10px !important; font-weight: 800; letter-spacing: .14em; }
+.pwa-install-note { padding: 12px 14px; border-radius: 12px; background: #F5F2EB; color: #625D55; font-size: 12px !important; }
+.pwa-install-close { position: absolute; top: 14px; right: 14px; display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid rgba(26,26,26,.14); border-radius: 50%; background: transparent; color: inherit; cursor: pointer; }
+.pwa-install-dismiss { width: 100%; min-height: 42px; margin-top: 8px; border: 0; border-radius: 10px; background: #1A1A1A; color: #FFFDF8; font-weight: 700; cursor: pointer; }
+@media (max-width: 640px) {
+  .pwa-install-button { left: 12px; bottom: calc(82px + env(safe-area-inset-bottom, 0px)); min-height: 40px; padding: 9px 12px; font-size: 11px; }
+  .pwa-install-dialog { padding: 25px 22px 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pwa-install-button { transition: none; }
+}
