@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from urllib import response
 
 def register(client, email="owner@example.com", business="Dumela Foods"):
     response = client.post("/api/auth/register", json={
@@ -155,29 +156,53 @@ def test_peloyame_uses_minimal_context_and_no_raw_identity(client, monkeypatch):
         "question": "Explain my current cash position", "session_id": "123e4567-e89b-12d3-a456-426614174002",
     })
     assert response.status_code == 200, response.text
-    assert response.json()["remaining_questions"] == 4
+    assert response.json()["remaining_questions"] == 19
+    assert response.json()["daily_questions_remaining"] == 19
     packed_messages = str(captured["messages"])
     assert "private-owner@example.com" not in packed_messages
     assert "Private internal note not for AI" not in packed_messages
     assert "current_balance" in packed_messages
 
 
-def test_peloyame_session_limit_is_enforced_on_server(client, monkeypatch):
+def test_peloyame_daily_limit_is_enforced_across_sessions(client, monkeypatch):
+    from app.config import settings
+    monkeypatch.setattr(settings, "peloyame_daily_user_limit", 3)
+
     _, headers = register(client)
     captured = _install_fake_groq(monkeypatch)
-    session_id = "123e4567-e89b-12d3-a456-426614174003"
-    for expected_remaining in [4, 3, 2, 1, 0]:
-        response = client.post("/api/peloyame/chat", headers=headers, json={
-            "question": "Explain my current cash position", "session_id": session_id,
-        })
+    session_ids = [
+        "123e4567-e89b-12d3-a456-426614174010",
+        "123e4567-e89b-12d3-a456-426614174011",
+        "123e4567-e89b-12d3-a456-426614174012",
+    ]
+
+    for expected_remaining, session_id in zip([2, 1, 0], session_ids):
+        response = client.post(
+            "/api/peloyame/chat",
+            headers=headers,
+            json={
+                "question": "Explain my current cash position",
+                "session_id": session_id,
+            },
+        )
+
         assert response.status_code == 200, response.text
         assert response.json()["remaining_questions"] == expected_remaining
-    blocked = client.post("/api/peloyame/chat", headers=headers, json={
-        "question": "Explain my current cash position", "session_id": session_id,
-    })
+        assert response.json()["daily_questions_remaining"] == expected_remaining
+
+    # A fourth question is blocked, even with a new session ID.
+    blocked = client.post(
+        "/api/peloyame/chat",
+        headers=headers,
+        json={
+            "question": "Explain my current cash position",
+            "session_id": "123e4567-e89b-12d3-a456-426614174013",
+        },
+    )
+
     assert blocked.status_code == 429
-    assert "five-question limit" in blocked.json()["detail"]
-    assert captured["calls"] == 5
+    assert "daily question allowance" in blocked.json()["detail"]
+    assert captured["calls"] == 3
 
 
 def test_prompt_injection_request_is_answered_without_model_call(client, monkeypatch):
